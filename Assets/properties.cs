@@ -72,10 +72,6 @@ public class NewBehaviourScript : MonoBehaviour
             if (!hotel && (houses = 0)) //Checks if there is not a hotel and if there are no houses.
             {
                 mortgage = true; //Mortgages the property.
-                return true;
-            }else
-            {
-                return false;
             }
         }
 
