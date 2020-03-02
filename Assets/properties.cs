@@ -31,6 +31,61 @@ public class NewBehaviourScript : MonoBehaviour
             group = importGroup;
             value = importValue;
         }
+
+        public addHouse() //Used to add a house.
+        {
+            if (!mortgage && (houses < 4) && !hotel) //Checks if there is not a mortgage and there are less than 4 houses and that there isn't a hotel.
+            {
+                houses += 1; //Adds a house to the property.
+            }
+        }
+
+        public removeHouse() //Used to remove a house.
+        {
+            if (houses > 0) //Checks if there is at least 1 house on the property.
+            {
+                houses -= 1; //Removes the house from the property.
+            }
+        }
+
+        public addHotel() //Used to add a hotel.
+        {
+            if (houses == 4) //Checks if the user has enough houses.
+            {
+                houses = 0; //Removes all the houses.
+                hotel = true; //Creates the hotel.
+            }
+        }
+
+        public removeHotel() //Removes the hotel.
+        {
+            if (hotel) //Checks if they have a hotel already.
+            {
+                houses = 4; //Gives the user back their 4 houses.
+                hotel = false; //Removes the hotel.
+
+            }
+        }
+
+        public mortgageProperty() //Mortgages the property.
+        {
+            if (!hotel && (houses = 0)) //Checks if there is not a hotel and if there are no houses.
+            {
+                mortgage = true; //Mortgages the property.
+                return true;
+            }else
+            {
+                return false;
+            }
+        }
+
+        public unmortgageProperty() //Removes the mortgage on the property.
+        {
+            if (mortgage)
+            {
+                mortgage = false;
+            }
+        }
     }
 
     // Start is called before the first frame update
