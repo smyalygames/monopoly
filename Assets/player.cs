@@ -13,10 +13,10 @@ public class player : MonoBehaviour
 
         public Player()
         {
-            
+            money = 1500;
         }
 
-        public Move(int length) //This moves the player a certain length (what they got from rolling the dice).
+        public void Move(int length) //This moves the player a certain length (what they got from rolling the dice).
         {
             if (position + length < 40) //Checks if the player will not pass go.
             {
@@ -30,12 +30,12 @@ public class player : MonoBehaviour
             }
         }
 
-        public goToJail() //If the player needs to go to jail.
+        public void goToJail() //If the player needs to go to jail.
         {
             position = 40; //Special position for jail.
         }
 
-        public getOutOfJail(int length) //If the player is going out of jail.
+        public void getOutOfJail(int length) //If the player is going out of jail.
         {
             position = 10; //Moves the player out of jail.
             Move(length); //Then moves the player.
