@@ -1,7 +1,6 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using properties;
 
 public class board : MonoBehaviour
 {
@@ -10,13 +9,15 @@ public class board : MonoBehaviour
     {
         public int houses; //Initialising houses
         public int hotels; //Initialising hotels
-        List<properties.Property> cards = new List<properties.Property>;
+        List<Property> cards = new List<Property>();
 
         public Board()
         {
             houses = 32; //Defining the amount of houses - They have a finite amount
             hotels = 12; //Defining the amount of hotels - They have a finite amount
         }
+
+
 
 
     }
