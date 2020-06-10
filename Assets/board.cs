@@ -1,7 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using properties;
+using static properties;
 
 public class board : MonoBehaviour
 {
@@ -10,7 +10,8 @@ public class board : MonoBehaviour
     {
         public int houses; //Initialising houses
         public int hotels; //Initialising hotels
-        List<properties.Property> cards = new List<properties.Property>;
+        // List<properties.Property> cards = new List<properties.Property>;
+        Property cards = new Property("test", "test", 200, 400);
 
         public Board()
         {
