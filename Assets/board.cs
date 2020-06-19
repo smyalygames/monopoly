@@ -1,10 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-<<<<<<< HEAD
 using static properties;
-=======
->>>>>>> cf686d8cd1e8be24b600a6d66e72755a749da53b
 
 public class board : MonoBehaviour
 {
@@ -13,12 +10,8 @@ public class board : MonoBehaviour
     {
         public int houses; //Initialising houses
         public int hotels; //Initialising hotels
-<<<<<<< HEAD
         // List<properties.Property> cards = new List<properties.Property>;
         Property cards = new Property("test", "test", 200, 400);
-=======
-        List<Property> cards = new List<Property>();
->>>>>>> cf686d8cd1e8be24b600a6d66e72755a749da53b
 
         public Board()
         {
