@@ -1,27 +1,37 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using System;
 
 public class Waypoints : MonoBehaviour
 {
-    
+	public int roll;
+	int position = 0;
 	public GameObject[] waypoints;
-	int current = 0;
 	float rotSpeed;
 	public float speed;
-	float WPradius = 0;
+	double WPradius = 0.001;
 
-    // Update is called once per frame
+	public void UpdateRoll(int passedRoll)
+    {
+		roll += passedRoll;
+		if (roll >= 40)
+        {
+			roll -= 40;
+        }
+    }
+	
     void Update()
     {
-		if(Vector3.Distance(waypoints[current].transform.position, transform.position) < WPradius)
+		if ((Vector3.Distance(waypoints[position].transform.position, transform.position) < WPradius) && position != roll)
 		{
-			current++;
-			if (current >= waypoints.Length)
+			//Debug.Log(waypoints[current]);
+			position++;
+			if (position >= waypoints.Length)
 			{
-				current = 0;
+				position = 0;
 			}
 		}
-        transform.position = Vector3.MoveTowards(transform.position, waypoints[current].transform.position, Time.deltaTime * speed);
+        transform.position = Vector3.MoveTowards(transform.position, waypoints[position].transform.position, Time.deltaTime * speed);
     }
 }
