@@ -119,7 +119,7 @@ public class properties : MonoBehaviour
     {
         if (data != null && test == 0)
         {
-            Debug.Log(data[1].printTitle());
+            Debug.Log(data[0].printTitle());
             test++;
         }
     }
