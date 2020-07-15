@@ -2,7 +2,7 @@ CREATE TABLE properties (
 	property_id int(2) AUTO_INCREMENT PRIMARY KEY NOT NULL, #Easy way to identify with code
     property_name TINYTEXT NOT NULL, #The name of the property
     property_group TINYTEXT NOT NULL, #The group that the property is
-    property_value int(3) NOT NULL, #How much it costs to buy the property
+    property_value int(3), #How much it costs to buy the property
     property_cost int(3), #How much it is to buy a house/hotel
     property_rent int(2), #How much it costs to rent
     property_house1 int(3), #How much it costs with 1 house

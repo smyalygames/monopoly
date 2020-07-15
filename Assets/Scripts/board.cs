@@ -28,8 +28,8 @@ public class board : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-		Property cards = new Property("cunt cunt cunt", "test", 200, 400);
-        Debug.Log(cards.ToString());
+		//Property cards = new Property("cunt cunt cunt", "test", 200, 400);
+        //Debug.Log(cards.ToString());
     }
 
     // Update is called once per frame

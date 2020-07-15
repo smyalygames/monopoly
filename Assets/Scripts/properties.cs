@@ -1,17 +1,34 @@
-﻿using System.Collections;
+﻿using JetBrains.Annotations;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Networking;
+using Newtonsoft.Json;
 
 public class Property
 {
+    /*
     public string title; //The name of the property.
     public string group; //The colour, station or utility.
     public int value; //How much it costs to buy.
     public int houseCost; //How much it costs to buy a house on that property.
+    */
+    public int property_id;
+    public string property_name;
+    public string property_group;
+    public int? property_value;
+    public int? property_cost;
+    public int? property_rent;
+    public int? property_house1;
+    public int? property_house2;
+    public int? property_house3;
+    public int? property_house4;
+    public int? property_hotel;
     public int houses = 0; //How many houses it has. (Can have up to 4)
     public bool hotel = false; //Whether it has a hotel or not. (Can only have 1)
     public bool mortgage = false; //Whether the property has been mortgaged.
 
+    /*
     public Property(string name, string importGroup, int importValue, int house) //For houses.
     {
         //Initialising all the variables.
@@ -28,6 +45,7 @@ public class Property
         group = importGroup;
         value = importValue;
     }
+    */
 
     public void addHouse() //Used to add a house.
     {
@@ -81,24 +99,52 @@ public class Property
     }
 
 	public string printTitle() {
-		return title;
+		return property_name;
 	}
 }
 
-
 public class properties : MonoBehaviour
 {
-
+    public List<Property> data;
+    int test;
 
     // Start is called before the first frame update
     void Start()
     {
+        StartCoroutine(GetProperties());
         
     }
 
-    // Update is called once per frame
     void Update()
     {
-        
+        if (data != null && test == 0)
+        {
+            Debug.Log(data[1].printTitle());
+            test++;
+        }
     }
+
+    IEnumerator GetProperties()
+    {
+        UnityWebRequest www = UnityWebRequest.Get(Domain.subDomain("includes/get-properties.inc.php"));
+        yield return www.SendWebRequest();
+
+        if (www.isNetworkError || www.isHttpError)
+        {
+            Debug.Log(www.error);
+        }
+        else
+        {
+            // Show results as text
+            string json = www.downloadHandler.text;
+            data = JsonConvert.DeserializeObject<List<Property>>(json);
+        }
+    }
+
+
+    public void currentProperty(int propertyNum)
+    {
+        Debug.Log(data[propertyNum].printTitle());
+    }
+
 }

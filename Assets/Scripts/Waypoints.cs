@@ -11,6 +11,7 @@ public class Waypoints : MonoBehaviour
 	float rotSpeed;
 	public float speed;
 	double WPradius = 0.001;
+	private properties properties;
 
 	public void UpdateRoll(int passedRoll)
     {
@@ -19,9 +20,14 @@ public class Waypoints : MonoBehaviour
         {
 			roll -= 40;
         }
+		properties.currentProperty(roll);
     }
-	
-    void Update()
+	void Awake()
+	{
+		properties = GameObject.FindObjectOfType<properties>();
+	}
+
+	void Update()
     {
 		if ((Vector3.Distance(waypoints[position].transform.position, transform.position) < WPradius) && position != roll)
 		{
