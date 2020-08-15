@@ -6,9 +6,9 @@ EditorBuildSettings:
   serializedVersion: 2
   m_Scenes:
   - enabled: 1
-    path: Assets/menu.unity
+    path: Assets/Scenes/menu.unity
     guid: a3fbd493866c5374390f0afa5705629b
   - enabled: 1
-    path: Assets/monopoly.unity
+    path: Assets/Scenes/monopoly.unity
     guid: 07d8ea2cf9ad15f41a12bd4ecf2b0f5d
   m_configObjects: {}

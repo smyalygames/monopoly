@@ -8,14 +8,13 @@ public class RollDice : MonoBehaviour
     System.Random random = new System.Random();
 
     private int current;
-    private Waypoints waypoints;
-    
+    private Main main;
 
     public Button m_RollDice;
 
     void Awake()
     {
-        waypoints = GameObject.FindObjectOfType<Waypoints>();
+        main = FindObjectOfType<Main>();
     }
 
     // Start is called before the first frame update
@@ -24,15 +23,8 @@ public class RollDice : MonoBehaviour
         m_RollDice.onClick.AddListener(TaskOnClick);
     }
 
-    // Update is called once per frame
-    void Update()
-    {
-        
-    }
-	
-	void TaskOnClick() {
+    void TaskOnClick() {
         current = random.Next(1, 7) + random.Next(1, 7);
-		Debug.Log("Rolled: " + current);
-        waypoints.UpdateRoll(current);
-	}
+        main.board.MovePlayer(0, current);
+    }
 }
