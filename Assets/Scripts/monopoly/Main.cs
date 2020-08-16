@@ -90,8 +90,8 @@ public class Board //Creating the class for the board mechanics.
 	public int totalProperties; //Defining how many properties can exist.
 	private TextHandler textHandler;
 	private ButtonHandler buttonHandler;
-	private List<Player> players;
-	private int currentPlayer = 0;
+	public List<Player> players;
+	public int currentPlayer = 0;
 	public List<Property> existingProperties;
 	public List<Property> avaliableProperties = new List<Property>(); //Has a list of all the available properties.
 	
@@ -115,16 +115,16 @@ public class Board //Creating the class for the board mechanics.
 		}
 	}
 
-	public void MovePlayer(int player, int roll)
+	public void MovePlayer(int roll)
 	{
-		players[player].Move(roll);
+		players[currentPlayer].Move(roll);
 		textHandler.updateRoll(roll);
 		
-		int money = players[player].money;
+		int money = players[currentPlayer].money;
 		textHandler.updateMoney(money);
 		
-		string propertyName = existingProperties[players[player].position].property_name;
-		int propertyValue = existingProperties[players[player].position].property_value;
+		string propertyName = existingProperties[players[currentPlayer].position].property_name;
+		int propertyValue = existingProperties[players[currentPlayer].position].property_value;
 
 		if (propertyValue != 0)
 		{
@@ -138,6 +138,30 @@ public class Board //Creating the class for the board mechanics.
 		buttonHandler.disableRollDice();
 	}
 
+	public void CheckFees()
+	{
+		int playerPosition = players[currentPlayer].position;
+		Property currentProperty = existingProperties[playerPosition];
+
+		if (currentProperty.property_rent >= 100)
+		{
+			players[currentPlayer].Pay(Convert.ToInt32(currentProperty.property_rent));
+		}
+	}
+
+	public void NextPlayer()
+	{
+		if (currentPlayer + 1 >= players.Count)
+		{
+			Debug.Log("Restarted");
+			currentPlayer = 0;
+		}
+		else
+		{
+			currentPlayer++;
+		}
+	}
+
 	public bool CheckBuyable(int position) //This checks if the property can be bought by the user.
 	{
 
@@ -148,18 +172,27 @@ public class Board //Creating the class for the board mechanics.
 			if (property.property_name == avaliableProperties[i].property_name) //Checks if the name exists in the available properties that can be purchased.
 			{
 				buttonHandler.enableBuying(); //If it can, it will return true and break from the function
-				return true; //Returns true if the player can buy the property.
+				return true; //Returns true if the property is buyable.
 			}
 		}
 		buttonHandler.disableBuying(); //If the name is not found, the property has not been found.
-		buttonHandler.enableRollDice(); //Lets the player continue moving if they can't buy the property.
-		return false; //Returns false if the player can't buy the property.
+		buttonHandler.enableRollDice(); //Allows the user to roll the dice if the property cannot be bought
+		return false; //Returns false if the property is not buybale.
 	}
 
 	public void BuyProperty()
 	{
 		int position = players[currentPlayer].position; //This is the current position of the player for the property.
 		Property property = existingProperties[position]; //This gets the property that the player is buying
+		int money = players[currentPlayer].money;
+
+		if (money - property.property_value < 0)
+		{
+			Debug.Log("The player doesn't have enough money!");
+			buttonHandler.disableBuying(); //Removes the buy button.
+			buttonHandler.enableRollDice(); //Re-enables the user to roll the dice.
+			return;
+		}
 
 		for (int i = 0; i < avaliableProperties.Count; i++) //Checks through all of the properties that are buyable using a linear search
 		{
@@ -168,8 +201,8 @@ public class Board //Creating the class for the board mechanics.
 				avaliableProperties.RemoveAt(i); //Removes the property from the list.
 				players[currentPlayer].BuyProperty(property); //This buys the property in the player class
 				textHandler.updateMoney(players[currentPlayer].money); //This updates the amount of money the player has.
-				buttonHandler.disableBuying();
-				buttonHandler.enableRollDice();
+				buttonHandler.disableBuying(); //Removes the buy button.
+				buttonHandler.enableRollDice(); //Re-enables the user to roll the dice.
 				return;
 			}
 		}
@@ -184,7 +217,8 @@ public class Player
 	private string name;
 	private int playerNumber;
 	public int money; //Initializes the variable for money.
-	public int position = 0; //Positions vary from 0-39 (40 squares on the board) (Go is 0)
+	public int position; //Positions vary from 0-39 (40 squares on the board) (Go is 0)
+	public bool inJail;
 	public List<Property> ownedProperties = new List<Property>();
 	public GameObject player;
 	private Movement movement;
@@ -192,6 +226,8 @@ public class Player
 	public Player(string playerName, int playerNumber, GameObject player)
 	{
 		name = playerName;
+		position = 0;
+		inJail = false;
 		this.playerNumber = playerNumber;
 		money = 1500; //Set the default starting money.
 		this.player = player;
@@ -201,27 +237,35 @@ public class Player
 	public void Move(int roll) //This moves the player a certain length (what they got from rolling the dice).
 	{
 
+		int previousPosition = position;
+		
 		position += roll; //Add the position with what was rolled.
+		
 		if (position >= 40) //If the player has reached or passed go then...
 		{
 			position -= 40; //As the player has gone round the board once, it removes the fact that it has gone around the board once.
 			money += 200; //Collect money as they pass go.
 		}
 
-		movement.Move(position, playerNumber);
+		movement.Move(previousPosition, position, playerNumber);
 
 		//return position; //Returns where the player needs to move to on the board
 	}
 
 	public void GoToJail() //If the player needs to go to jail.
 	{
+		int previousPosition = position;
+		Debug.Log("Jailed!!!");
 		position = 40; //Special position for jail.
+		inJail = true;
+		movement.Move(previousPosition,position, playerNumber); //Moves the player to jail.
 	}
 
-	public void GetOutOfJail(int length) //If the player is going out of jail.
+	public void GetOutOfJail(int roll) //If the player is going out of jail.
 	{
 		position = 10; //Moves the player out of jail.
-		//Move(length); //Then moves the player.
+		inJail = false;
+		Move(roll); //Then moves the player.
 	}
 
 	public void BuyProperty(Property property) //This function allows the player to own a property.
@@ -238,6 +282,11 @@ public class Player
 		{
 			Debug.Log("Error: You do not have enough money to pay for the property!");
 		}
+	}
+
+	public void Pay(int money)
+	{
+		this.money -= money;
 	}
 	
 }
