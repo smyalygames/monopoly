@@ -147,6 +147,8 @@ public class Board //Creating the class for the board mechanics.
 		{
 			players[currentPlayer].Pay(Convert.ToInt32(currentProperty.property_rent));
 		}
+		
+		textHandler.updateMoney(players[currentPlayer].money);
 	}
 
 	public void NextPlayer()
@@ -284,9 +286,9 @@ public class Player
 		}
 	}
 
-	public void Pay(int money)
+	public void Pay(int fee)
 	{
-		this.money -= money;
+		money -= fee;
 	}
 	
 }
