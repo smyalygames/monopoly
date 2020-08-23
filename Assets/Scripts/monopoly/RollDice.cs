@@ -52,6 +52,6 @@ public class RollDice : MonoBehaviour
             
         }
         
-        main.board.MovePlayer(4);
+        main.board.MovePlayer(totalRoll);
     }
 }
