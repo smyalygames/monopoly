@@ -24,9 +24,16 @@ public class Property
 	public int? property_house3; //This is the rent if it has 3 houses
 	public int? property_house4; //This is the rent if it has 4 houses
 	public int? property_hotel; //This is the rent if it has a hotel
-	public int houses = 0; //How many houses it has. (Can have up to 4)
-	public bool hotel = false; //Whether it has a hotel or not. (Can only have 1)
-	public bool mortgage = false; //Whether the property has been mortgaged.
+	public int houses; //How many houses it has. (Can have up to 4)
+	public bool hotel; //Whether it has a hotel or not. (Can only have 1)
+	public bool mortgage; //Whether the property has been mortgaged.
+
+	public Property()
+	{
+		houses = 0;
+		hotel = false;
+		mortgage = false;
+	}
 
 	public void addHouse() //Used to add a house.
 	{
