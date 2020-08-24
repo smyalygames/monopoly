@@ -3,13 +3,22 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using TMPro;
 
 public class ButtonHandler : MonoBehaviour
 {
-    
+
+    public GameObject GameUI;
     public Button rollDice;
     public GameObject buyButton;
     public Button buyButtonButton;
+
+    //Inventory
+    public GameObject PropertyUI;
+    public Button inventory;
+    public TextMeshProUGUI inventoryText;
+    private bool inventoryOpen = false;
+    
 
     public void disableRollDice()
     {
@@ -31,6 +40,34 @@ public class ButtonHandler : MonoBehaviour
         buyButton.SetActive(true);
     }
 
+    void OpenInventory()
+    {
+        GameUI.SetActive(false);
+        PropertyUI.SetActive(true);
+        inventoryText.text = "Close Inventory";
+    }
+
+    void CloseInventory()
+    {
+        GameUI.SetActive(true);
+        PropertyUI.SetActive(false);
+        inventoryText.text = "Open Inventory";
+    }
+
+    void ToggleInventory()
+    {
+        if (!inventoryOpen)
+        {
+            OpenInventory();
+            inventoryOpen = true;
+        }
+        else
+        {
+            CloseInventory();
+            inventoryOpen = false;
+        }
+    }
+
 
     private Main main;
 
@@ -41,10 +78,11 @@ public class ButtonHandler : MonoBehaviour
 
     void Start()
     {
-        buyButtonButton.onClick.AddListener(TaskOnClick);
+        buyButtonButton.onClick.AddListener(BuyPropertyClick);
+        inventory.onClick.AddListener(ToggleInventory);
     }
 
-    void TaskOnClick() {
+    void BuyPropertyClick() {
         main.board.BuyProperty();
     }
 }

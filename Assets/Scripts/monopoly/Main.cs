@@ -219,6 +219,11 @@ public class Board //Creating the class for the board mechanics.
 		Debug.Log("The property cannot be bought!"); //Prints that theres an error
 		
 	}
+
+	public void Mortgage()
+	{
+		
+	}
 }
 
 public class Player
@@ -296,22 +301,26 @@ public class Player
 
 	
 
-	public void CheckColourSet(string colour) //Checks if the player has a whole colour set.
+	public bool CheckColourSet(string colour) //Checks if the player has a whole colour set.
 	{
 		int required = 3; //This is the number of properties needed to own to buy houses.
 		int counter = 0; //This checks how many times the property is found.
-		
+
 		if (colour == "brown" || colour == "dark blue") //Only brown and dark blue has 2 properties.
 		{
 			required = 2;
 		}
 
-		for (int i = 0; i < ownedProperties.Count; i++)
+		for (int i = 0; i < ownedProperties.Count && counter != required; i++)
 		{
-			 //TODO Use the merge sort to make the for loop more efficient.
+			if (ownedProperties[i].property_group == colour)
+			{
+				counter++;
+			}
 		}
-		
-		
+
+		return (counter == required);
+
 	}
 
 	public void Pay(int fee)
