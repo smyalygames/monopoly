@@ -18,7 +18,7 @@ public class ButtonHandler : MonoBehaviour
     public Button inventory;
     public TextMeshProUGUI inventoryText;
     private bool inventoryOpen = false;
-    
+    private Inventory inventoryClass;
 
     public void disableRollDice()
     {
@@ -42,6 +42,7 @@ public class ButtonHandler : MonoBehaviour
 
     void OpenInventory()
     {
+        inventoryClass.OpenInventory();
         GameUI.SetActive(false);
         PropertyUI.SetActive(true);
         inventoryText.text = "Close Inventory";
@@ -68,12 +69,12 @@ public class ButtonHandler : MonoBehaviour
         }
     }
 
-
     private Main main;
 
     void Awake()
     { 
         main = FindObjectOfType<Main>();
+        inventoryClass = FindObjectOfType<Inventory>();
     }
 
     void Start()

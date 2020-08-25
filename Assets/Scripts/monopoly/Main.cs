@@ -229,7 +229,7 @@ public class Board //Creating the class for the board mechanics.
 
 	public void Mortgage()
 	{
-		
+		//TODO
 	}
 }
 
