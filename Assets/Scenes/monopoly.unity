@@ -1234,7 +1234,8 @@ MonoBehaviour:
   propertyColour: {fileID: 697882661}
   buyHouse: {fileID: 569742455}
   sellHouse: {fileID: 505820772}
-  Mortgage: {fileID: 516041487}
+  mortgage: {fileID: 516041487}
+  mortgageText: {fileID: 1679217085}
 --- !u!1 &314548389
 GameObject:
   m_ObjectHideFlags: 0

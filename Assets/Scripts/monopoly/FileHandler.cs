@@ -1,27 +1,25 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using System.IO;
+﻿using System.IO;
 using System.Runtime.Serialization.Formatters.Binary;
 using UnityEngine;
 
 public static class FileHandler
 {
-    public static string LoadProperties()
+    public static string LoadProperties() //This function loads the properties from a file.
     {
-        string path = Application.persistentDataPath + "/properties.smyal";
-        if (File.Exists(path))
+        string path = Application.persistentDataPath + "/properties.smyal"; //This finds the predefined path in LocalLow and tries to find the JSON file in binary.
+        if (File.Exists(path)) //If the file exists..
         {
-            BinaryFormatter  formatter = new BinaryFormatter();
-            FileStream stream = new FileStream(path, FileMode.Open);
+            BinaryFormatter  formatter = new BinaryFormatter(); //Gets the binary formatter to convert it into plain text
+            FileStream stream = new FileStream(path, FileMode.Open); //Opens the properties.smyal file
 
-            string data = formatter.Deserialize(stream) as string;
-            stream.Close();
+            string data = formatter.Deserialize(stream) as string; //It decodes the binary to a string
+            stream.Close(); //The file is now closed.
 
-            return data;
+            return data; //The data is returned.
         }
-        else
+        else //If the file didn't exist...
         {
-            Debug.LogError("Save file not found in " + path);
+            Debug.LogError("Save file not found in " + path); //Sends an error message to the console.
             return null;
         }
     }

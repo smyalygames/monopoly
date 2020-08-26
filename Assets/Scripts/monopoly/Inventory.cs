@@ -9,6 +9,7 @@ public class Inventory : MonoBehaviour
 {
 
     private Main main;
+    private Player currentPlayer;
     
     //Inventory
     public GameObject inventoryPanel;
@@ -21,7 +22,8 @@ public class Inventory : MonoBehaviour
     public Image propertyColour;
     public Button buyHouse;
     public Button sellHouse;
-    public Button Mortgage;
+    public Button mortgage;
+    public TextMeshProUGUI mortgageText;
 
     //This is the function that will be used when the user clicks to open the inventory.
     public void OpenInventory() 
@@ -40,32 +42,88 @@ public class Inventory : MonoBehaviour
         }
     }
 
-    void OpenProperties(Button button)
+    void OpenProperties(Button button) //This functions runs when a property has been clicked on in the inventory.
     {
-        inventoryPanel.SetActive(false);
-        propertyPanel.SetActive(true);
-        Debug.Log(button.name);
+        Property property = new Property(); //This is used for the property information to make the code look neater.
+        int currentProperty = 50; //This is used for identifying the property in the ownedProperties list - 50 is used if the property wasn't found for some reason.
+
+        for (int i = 0; i < main.board.players[main.board.currentPlayer].ownedProperties.Count; i++) //This checks through the current player's owned properties.
+        {
+            if (main.board.players[main.board.currentPlayer].ownedProperties[i].property_name == button.name) //This checks if owned property matches with the button pressed's name.
+            {
+                property = main.board.players[main.board.currentPlayer].ownedProperties[i]; //The clicked on property is set to the variable property.
+                currentProperty = i; //The current property identifier is set.
+                break; //This stops the for loop prematurely as the search is done.
+            }
+        }
+
+        //Initialising the texts:
+        /*
+         *      TODO: Add House, Remove House
+         *            buyHouse,  sellHouse
+         */
+        propertyName.text = property.property_name; //This sets the name of the property title on screen.
+        propertyColour.color = button.image.color; //This changes the background colour of the title to the colour of the button that was pressed.
+        
+        backButton.onClick.AddListener(CloseProperties); //This adds a listener to go back to the main menu screen for the inventory.
+        
+        //Buttons
+        if (!main.board.players[main.board.currentPlayer].ownedProperties[currentProperty].mortgage) //This checks if the property is not mortgaged.
+        {
+            mortgage.onClick.RemoveAllListeners(); //This removes all previous onClick listeners.
+            mortgage.onClick.AddListener(() => Mortgage(currentProperty)); //This adds a click listener to mortgage the property.
+        }
+        else //If the property is already mortgaged then...
+        {
+            mortgage.onClick.RemoveAllListeners(); //This removes all previous onClick listeners.
+            mortgage.onClick.AddListener(() => Unmortgage(currentProperty)); //This adds a click listener to unmortgage the property.
+        }
+        
+        inventoryPanel.SetActive(false); //This hides the inventory main menu.
+        propertyPanel.SetActive(true); //This shows the property specific menu.
     }
 
-    void CloseProperties()
+    void Mortgage(int currentProperty) //This function runs when the Mortgage button has been pressed.
     {
-        propertyPanel.SetActive(false);
-        inventoryPanel.SetActive(true);
+        if (main.board.players[main.board.currentPlayer].Mortgage(currentProperty)) //This runs the mortgage function for the property and checks if it was done so successfully.
+        {
+            mortgageText.text = "Unmortgage"; //This changes the button from Mortgage to Unmortgage.
+            mortgage.onClick.RemoveAllListeners(); //This removes all previous onClick listeners.
+            mortgage.onClick.AddListener(() => Unmortgage(currentProperty)); //This adds a click listener to unmortgage the property.
+        }
+    }
+
+    void Unmortgage(int currentProperty) //This function runs when the Unmortgage button has been pressed.
+    {
+        if (main.board.players[main.board.currentPlayer].Unmortgage(currentProperty)) //This runs the unmortgage command for the property and checks if it was done so successfully.
+        {
+            mortgageText.text = "Mortgage"; //This changes the button from Unmortgage to Mortgage.
+            mortgage.onClick.RemoveAllListeners(); //This removes all previous onClick listeners.
+            mortgage.onClick.AddListener(() => Mortgage(currentProperty)); //This adds a click listener to mortgage the property.
+        }
+    }
+
+    void CloseProperties() //This closes the property specific window and goes to the inventory main menu.
+    {
+        propertyPanel.SetActive(false); //This closes the property specific window.
+        inventoryPanel.SetActive(true); //This opens the inventory main menu.
     }
     
 
-    private void Awake()
+    void Awake()
     {
         main = FindObjectOfType<Main>();
     }
 
-    private void Start()
+    void Start()
     {
-        for (int i = 0; i < properties.Length; i++)
+        for (int i = 0; i < properties.Length; i++) //This goes through all of the buttons in the main menu.
         {
-            properties[i].onClick.AddListener(delegate { OpenProperties(properties[i]); });
+            int i1 = i;
+            properties[i].onClick.AddListener(() => OpenProperties(properties[i1])); //This adds a specific menu for each of the buttons.
         }
         
-        backButton.onClick.AddListener(CloseProperties);
+        backButton.onClick.AddListener(CloseProperties); //This adds the function to go back to the main inventory page on the property specific window.
     }
+    
 }

@@ -70,20 +70,26 @@ public class Property
 		}
 	}
 
-	public void mortgageProperty() //Mortgages the property.
+	public bool mortgageProperty() //Mortgages the property.
 	{
-		if (!hotel && (houses == 0)) //Checks if there is not a hotel and if there are no houses.
+		if (!hotel && (houses == 0) && !mortgage) //Checks if there is not a hotel and if there are no houses.
 		{
 			mortgage = true; //Mortgages the property.
+			return true; //This returns true if done successfully.
 		}
+		
+		return false; //This returns false if the property couldn't be mortgaged.
 	}
 
-	public void unmortgageProperty() //Removes the mortgage on the property.
+	public bool unmortgageProperty() //Removes the mortgage on the property.
 	{
 		if (mortgage) //Checks if the property has been mortgaged.
 		{
 			mortgage = false; //Removes the mortgage.
+			return true; //This returns true if done successfully.
 		}
+
+		return false; //This returns false if the property couldn't be unmortgaged.
 	}
 
 	public bool isBuyable() //This returns a boolean if the property is buyable
@@ -226,16 +232,11 @@ public class Board //Creating the class for the board mechanics.
 		Debug.Log("The property cannot be bought!"); //Prints that theres an error
 		
 	}
-
-	public void Mortgage()
-	{
-		//TODO
-	}
 }
 
 public class Player
 {
-	private string name; //This is the username of the player
+	public string name; //This is the username of the player
 	private int playerNumber; //This is the player number in the queue
 	public int money; //Initializes the variable for money.
 	public int position; //Positions vary from 0-39 (40 squares on the board) (Go is 0)
@@ -243,6 +244,7 @@ public class Player
 	public List<Property> ownedProperties; //This is the list of properties that the player owns.
 	public GameObject player;
 	private Movement movement;
+	private TextHandler textHandler;
 
 	public Player(string playerName, int playerNumber, GameObject player)
 	{
@@ -254,6 +256,7 @@ public class Player
 		this.player = player; //This links the object that the player is linked to in the game
 		ownedProperties = new List<Property>();
 		movement = GameObject.FindObjectOfType<Movement>(); //This finds the movement script in the game
+		textHandler = GameObject.FindObjectOfType<TextHandler>(); //Finds the text handler script
 	}
 
 	public void Move(int roll) //This moves the player a certain length (what they got from rolling the dice).
@@ -304,10 +307,9 @@ public class Player
 		{
 			Debug.Log("Error: You do not have enough money to pay for the property!");
 		}
+		
 	}
-
 	
-
 	public bool CheckColourSet(string colour) //Checks if the player has a whole colour set.
 	{
 		int required = 3; //This is the number of properties needed to own to buy houses.
@@ -320,19 +322,51 @@ public class Player
 
 		for (int i = 0; i < ownedProperties.Count && counter != required; i++)
 		{
-			if (ownedProperties[i].property_group == colour)
+			if (ownedProperties[i].property_group == colour) //Checks if the owned property is in the same colour group.
 			{
-				counter++;
+				counter++; //Increments the counter if a property was found to be owned.
 			}
 		}
 
 		return (counter == required);
-
 	}
 
-	public void Pay(int fee)
+	public void Pay(float fee) //This function makes the user pay.
 	{
-		money -= fee;
+		money -= Convert.ToInt32(fee); //This deducts the money from the user's balance.
+		textHandler.updateMoney(money); //This updates the text on the screen for the user.
+	}
+	
+	public bool Mortgage(int currentProperty) //This is used for mortgaging a property.
+	{
+		if (currentProperty == 50) //Checks if there was an error - 50 is an error code.
+		{
+			return false; //Breaks the function and says that it wasn't completed.
+		}
+
+		if (ownedProperties[currentProperty].mortgageProperty()) //Mortgages the property and if done successfully..
+		{
+			Pay(ownedProperties[currentProperty].property_value / -2); //Gives the user 50% of what the property is worth. (/-2 makes it positive in the Pay function)
+			return true; //Says that mortgaging has been done successfully.
+		}
+
+		return false; //Says that mortgaging has not been done successfully.
+	}
+
+	public bool Unmortgage(int currentProperty) //This is used for unmortgaging a property.
+	{
+		if (currentProperty == 50) //Checks if there was an error - 50 is an error code.
+		{
+			return false; //Breaks the function and says that it wasn't completed.
+		}
+
+		if (ownedProperties[currentProperty].unmortgageProperty()) //Unmortgages the property and if done successfully..
+		{
+			Pay((ownedProperties[currentProperty].property_value / 2) * 1.1f); //Makes the user pay what they got in mortgage plus a 10% interest
+			return true; //Says that mortgaging has been done successfully.
+		}
+
+		return false; //Says that mortgaging has not been done successfully.
 	}
 	
 }
@@ -409,19 +443,20 @@ public static class MergeMethod
 public class Main : MonoBehaviour
 {
 	private List<Property> existingProperties;
-	public GameObject[] waypoints;
+	public GameObject[] waypoints; //These are all the predefined waypoints on the board.
 	public Board board;
 
 	//Player variables
-	public List<Player> players = new List<Player>();
+	public List<Player> players = new List<Player>(); //Creates a list for all the players playing in the game.
 
 	private void Awake()
 	{
+		//Adds the players to the game
 		players.Add(new Player("smyalygames", 0, GameObject.Find("/Players/Player1")));
 		players.Add(new Player("coomer", 1, GameObject.Find("/Players/Player2")));
-		Debug.Log(players[0].player.name);
-		existingProperties = JsonConvert.DeserializeObject<List<Property>>(FileHandler.LoadProperties());
-		board = new Board(players, existingProperties);
+		Debug.Log(players[0].player.name); //This is just checking if the player has been assigned.
+		existingProperties = JsonConvert.DeserializeObject<List<Property>>(FileHandler.LoadProperties()); //This loads via JSON all the properties from a file which was originally downloaded from a server.
+		board = new Board(players, existingProperties); //Creates the board class.
 	}
 	
 }
