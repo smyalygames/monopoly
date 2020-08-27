@@ -96,6 +96,26 @@ public class Property
 	{
 		return property_value != 0; //This checks if the value of the property is set and then returns a boolean
 	}
+
+	public string ParseRentInformation()
+	{
+		string parsedString;
+		parsedString = $"Rent: {property_rent}\n" +
+		               $"Colour Set: {property_rent*2}\n" +
+		               $"1 House: {property_house1}\n" +
+		               $"2 Houses: {property_house2}\n" +
+		               $"3 Houses: {property_house3}\n" +
+		               $"4 Houses: {property_house4}\n" +
+		               $"Hotel: {property_hotel}";
+		return parsedString;
+	}
+
+	public string ParseHouses()
+	{
+		string parsedString;
+		parsedString = $"Houses: {houses}";
+		return parsedString;
+	}
 }
 
 public class Board //Creating the class for the board mechanics.
