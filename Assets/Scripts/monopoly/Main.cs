@@ -1,13 +1,9 @@
 ﻿using System;
-using JetBrains.Annotations;
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 using Newtonsoft.Json;
 using UnityEditor;
-using UnityEngine.UI;
-using UnityEngine.XR;
 
 
 public class Property
@@ -39,34 +35,25 @@ public class Property
 	{
 		if (!mortgage && (houses < 4) && !hotel) //Checks if there is not a mortgage and there are less than 4 houses and that there isn't a hotel.
 		{
-			houses += 1; //Adds a house to the property.
+			houses++; //Adds a house to the property.
+		} 
+		else if (!mortgage && (houses == 4) && !hotel) //This is if a hotel is being created.
+		{
+			houses++; //Removes all the houses.
+			hotel = true; //Creates the hotel.
 		}
 	}
 
 	public void removeHouse() //Used to remove a house.
 	{
-		if (houses > 0) //Checks if there is at least 1 house on the property.
+		if (houses == 5 && hotel) //This is if there is a hotel.
 		{
-			houses -= 1; //Removes the house from the property.
-		}
-	}
-
-	public void addHotel() //Used to add a hotel.
-	{
-		if (houses == 4) //Checks if the user has enough houses.
-		{
-			houses = 0; //Removes all the houses.
-			hotel = true; //Creates the hotel.
-		}
-	}
-
-	public void removeHotel() //Removes the hotel.
-	{
-		if (hotel) //Checks if they have a hotel already.
-		{
-			houses = 4; //Gives the user back their 4 houses.
+			houses--; //Gives the user back their 4 houses.
 			hotel = false; //Removes the hotel.
-
+		} 
+		else if (houses > 0) //Checks if there is at least 1 house on the property.
+		{
+			houses--; //Removes the house from the property.
 		}
 	}
 
@@ -97,9 +84,10 @@ public class Property
 		return property_value != 0; //This checks if the value of the property is set and then returns a boolean
 	}
 
-	public string ParseRentInformation()
+	public string ParseRentInformation() //This shows the information of how much rent a player would have to pay on the property for each circumstance.
 	{
-		string parsedString;
+		string parsedString; //This is the string that will be returned in the end.
+		//This plugs in the value of each variable into the string.
 		parsedString = $"Rent: {property_rent}\n" +
 		               $"Colour Set: {property_rent*2}\n" +
 		               $"1 House: {property_house1}\n" +
@@ -107,14 +95,27 @@ public class Property
 		               $"3 Houses: {property_house3}\n" +
 		               $"4 Houses: {property_house4}\n" +
 		               $"Hotel: {property_hotel}";
-		return parsedString;
+		return parsedString; //This returns the parsed string.
 	}
 
-	public string ParseHouses()
+	public string ParseHouses() //This is used to show how many properties there are on the property tile.
 	{
-		string parsedString;
-		parsedString = $"Houses: {houses}";
-		return parsedString;
+		string parsedString; //This is the string that will be displayed.
+
+		switch (houses) //Checks how many "houses" there are on the property
+		{
+			case 0: //Checks if there are none.
+				parsedString = "Properties: None"; //Writes that there are no properties.
+				break;
+			case 5:
+				parsedString = "Properties: Hotel"; //Writes that there is a hotel.
+				break;
+			default:
+				parsedString = $"Properties: {houses} Houses"; //Writes how many houses there are.
+				break;
+		}
+
+		return parsedString; //Returns the string parsed.
 	}
 }
 
@@ -191,7 +192,7 @@ public class Board //Creating the class for the board mechanics.
 		textHandler.updateMoney(players[currentPlayer].money); //Updates the UI for the current amount of money the player has.
 	}
 
-	public void NextPlayer() //This moves the queue to the next player.
+	public void NextPlayer() //This moves the queue to the next player. TODO
 	{
 		if (currentPlayer + 1 >= players.Count) //If the counter is about to overflow in the queue, then...
 		{
@@ -220,6 +221,22 @@ public class Board //Creating the class for the board mechanics.
 		buttonHandler.disableBuying(); //If the name is not found, the property has not been found.
 		buttonHandler.enableRollDice(); //Allows the user to roll the dice if the property cannot be bought
 		return false; //Returns false if the property is not buybale.
+	}
+
+	public (int, int) FindOwner(string propertyName)
+	{
+		for (int i = 0; i < players.Count; i++)
+		{
+			for (int j = 0; j < players[i].ownedProperties.Count; j++)
+			{
+				if (players[i].ownedProperties[j].property_name == propertyName)
+				{
+					return (i, j);
+				}
+			}
+		}
+
+		return (0, 0);
 	}
 
 	public void BuyProperty()
@@ -251,6 +268,92 @@ public class Board //Creating the class for the board mechanics.
 		
 		Debug.Log("The property cannot be bought!"); //Prints that theres an error
 		
+	}
+
+	public void BuyHouseOnProperty(string propertyName)
+	{
+		var location = FindOwner(propertyName);
+
+		Property property = players[location.Item1].ownedProperties[location.Item2];
+
+		if (property.houses < 4)
+		{
+			if (BuyHouse())
+			{
+				players[location.Item1].ownedProperties[location.Item2].addHouse();
+			}
+		}
+		else if (property.houses == 4)
+		{
+			if (BuyHotel())
+			{
+				players[location.Item1].ownedProperties[location.Item2].addHouse();
+			}
+		}
+		
+		players[location.Item1].Pay(Convert.ToInt32(property.property_cost));
+	}
+
+	public void SellHouseOnProperty(string propertyName)
+	{
+		var location = FindOwner(propertyName);
+
+		Property property = players[location.Item1].ownedProperties[location.Item2];
+
+		if (property.houses <= 4 && property.houses > 0)
+		{
+			SellHouse();
+			players[location.Item1].ownedProperties[location.Item2].removeHouse();
+		}
+		else if (property.houses == 5)
+		{
+			if (SellHotel())
+			{
+				players[location.Item1].ownedProperties[location.Item2].removeHouse();
+			}
+		}
+		
+		players[location.Item1].Pay(Convert.ToInt32(property.property_cost)/-2);
+	}
+
+	private bool BuyHouse()
+	{
+		if (houses > 0)
+		{
+			houses--;
+			return true;
+		}
+
+		return false;
+	}
+
+	private void SellHouse()
+	{
+		houses++;
+	}
+
+	private bool BuyHotel()
+	{
+		if (hotels > 0)
+		{
+			houses += 4;
+			hotels--;
+			return true;
+		}
+
+		return false;
+	}
+
+	private bool SellHotel()
+	{
+		if (houses >= 4)
+		{
+			houses -= 4;
+			hotels++;
+			return true;
+		}
+
+		return false;
 	}
 }
 
@@ -297,7 +400,7 @@ public class Player
 		//return position; //Returns where the player needs to move to on the board
 	}
 
-	public void GoToJail() //If the player needs to go to jail.
+	public void GoToJail() //If the player needs to go to jail. TODO
 	{
 		int previousPosition = position;
 		Debug.Log("Jailed!!!"); //Prints a message to say that the player is in jail.
@@ -306,7 +409,7 @@ public class Player
 		movement.Move(previousPosition,position, playerNumber); //Moves the player to jail.
 	}
 
-	public void GetOutOfJail(int roll) //If the player is going out of jail.
+	public void GetOutOfJail(int roll) //If the player is going out of jail. TODO
 	{
 		position = 10; //Moves the player out of jail.
 		inJail = false; //Disables the inJail functions for the player.
@@ -474,7 +577,7 @@ public class Main : MonoBehaviour
 		//Adds the players to the game
 		players.Add(new Player("smyalygames", 0, GameObject.Find("/Players/Player1")));
 		players.Add(new Player("coomer", 1, GameObject.Find("/Players/Player2")));
-		Debug.Log(players[0].player.name); //This is just checking if the player has been assigned.
+		Debug.Log(players[0].name); //This is just checking if the player has been assigned.
 		existingProperties = JsonConvert.DeserializeObject<List<Property>>(FileHandler.LoadProperties()); //This loads via JSON all the properties from a file which was originally downloaded from a server.
 		board = new Board(players, existingProperties); //Creates the board class.
 	}

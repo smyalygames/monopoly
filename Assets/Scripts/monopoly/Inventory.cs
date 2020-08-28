@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
 
@@ -23,6 +20,7 @@ public class Inventory : MonoBehaviour
     public TextMeshProUGUI propertyRent;
     public TextMeshProUGUI propertyHouses;
     public Button buyHouse;
+    public TextMeshProUGUI buyHouseText;
     public Button sellHouse;
     public Button mortgage;
     public TextMeshProUGUI mortgageText;
@@ -58,12 +56,7 @@ public class Inventory : MonoBehaviour
                 break; //This stops the for loop prematurely as the search is done.
             }
         }
-
-        //Initialising the texts:
-        /*
-         *      TODO: Add House, Remove House
-         *            buyHouse,  sellHouse
-         */
+        
         propertyName.text = property.property_name; //This sets the name of the property title on screen.
         propertyColour.color = button.image.color; //This changes the background colour of the title to the colour of the button that was pressed.
         propertyRent.text = property.ParseRentInformation(); //This shows the rent for each possibilities of houses.
@@ -71,20 +64,30 @@ public class Inventory : MonoBehaviour
         
         backButton.onClick.AddListener(CloseProperties); //This adds a listener to go back to the main menu screen for the inventory.
         
-        buyHouse.onClick.AddListener(() => BuyHouse(currentProperty));
-        sellHouse.onClick.AddListener(() => SellHouse(currentProperty));
+        buyHouse.onClick.RemoveAllListeners();
+        sellHouse.onClick.RemoveAllListeners();
+        buyHouse.onClick.AddListener(() => BuyHouse(currentProperty, property.property_name));
+        sellHouse.onClick.AddListener(() => SellHouse(currentProperty, property.property_name));
 
         switch (property.houses) //Checks how many houses the player has.
         {
             case 0: //This stops the player from selling a house when they have none.
+                buyHouseText.text = "Buy House";
                 sellHouse.interactable = false;
                 buyHouse.interactable = true;
                 break;
             case 4: //This stops the player from buying a house when they cannot buy more.
+                buyHouseText.text = "Buy Hotel";
+                buyHouse.interactable = true;
+                sellHouse.interactable = true;
+                break;
+            case 5:
+                buyHouseText.text = "Buy Hotel";
                 buyHouse.interactable = false;
                 sellHouse.interactable = true;
                 break;
             default: //This is the default case.
+                buyHouseText.text = "Buy House";
                 buyHouse.interactable = true;
                 sellHouse.interactable = true;
                 break;
@@ -106,27 +109,44 @@ public class Inventory : MonoBehaviour
         propertyPanel.SetActive(true); //This shows the property specific menu.
     }
 
-    void BuyHouse(int currentProperty)
+    void BuyHouse(int currentProperty, string propertyName)
     {
-        main.board.players[main.board.currentPlayer].ownedProperties[currentProperty].addHouse();
+        main.board.BuyHouseOnProperty(propertyName);
         Property property = main.board.players[main.board.currentPlayer].ownedProperties[currentProperty];
         propertyHouses.text = property.ParseHouses();
-        if (property.houses >= 4)
+        if (property.houses == 4)
         {
+            buyHouseText.text = "Buy Hotel";
+        } 
+        else if (property.houses > 4)
+        {
+            buyHouseText.text = "Buy Hotel";
             buyHouse.interactable = false;
+        }
+        else
+        {
+            buyHouseText.text = "Buy House";
         }
 
         sellHouse.interactable = true;
     }
 
-    void SellHouse(int currentProperty)
+    void SellHouse(int currentProperty, string propertyName)
     {
-        main.board.players[main.board.currentPlayer].ownedProperties[currentProperty].removeHouse();
+        main.board.SellHouseOnProperty(propertyName);
         Property property = main.board.players[main.board.currentPlayer].ownedProperties[currentProperty];
         propertyHouses.text = property.ParseHouses();
         if (property.houses == 0)
         {
             sellHouse.interactable = false;
+        } 
+        else if (property.houses < 4)
+        {
+            buyHouseText.text = "Buy House";
+        }
+        else if (property.houses >= 4)
+        {
+            buyHouseText.text = "Buy Hotel";
         }
         
         buyHouse.interactable = true;
