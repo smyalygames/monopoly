@@ -39,7 +39,7 @@ public class ButtonHandler : MonoBehaviour
 
     void OpenInventory()
     {
-        inventoryClass.OpenInventory();
+        inventoryClass.UpdateInventory();
         GameUI.SetActive(false);
         PropertyUI.SetActive(true);
         inventoryText.text = "Close Inventory";

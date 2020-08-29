@@ -223,20 +223,20 @@ public class Board //Creating the class for the board mechanics.
 		return false; //Returns false if the property is not buybale.
 	}
 
-	public (int, int) FindOwner(string propertyName)
+	public (int, int) FindOwner(string propertyName) //This function is used to find the property and the owner of it.
 	{
-		for (int i = 0; i < players.Count; i++)
+		for (int i = 0; i < players.Count; i++) //This is the loop for the amount of players playing.
 		{
-			for (int j = 0; j < players[i].ownedProperties.Count; j++)
+			for (int j = 0; j < players[i].ownedProperties.Count; j++) //This is the loop for the amount of properties the currently searched player owns.
 			{
-				if (players[i].ownedProperties[j].property_name == propertyName)
+				if (players[i].ownedProperties[j].property_name == propertyName) //This checks if the property name parameter matches the one that the player owns.
 				{
-					return (i, j);
+					return (i, j); //It returns the player then the property position.
 				}
 			}
 		}
 
-		return (0, 0);
+		return (0, 0); //Default error.
 	}
 
 	public void BuyProperty()
@@ -270,90 +270,95 @@ public class Board //Creating the class for the board mechanics.
 		
 	}
 
-	public void BuyHouseOnProperty(string propertyName)
+	public void BuyHouseOnProperty(string propertyName) //This function links the UI button and this class to buy properties.
 	{
-		var location = FindOwner(propertyName);
+		var location = FindOwner(propertyName); //This function finds the owner and the position of the property in the owner's list of properties.
 
-		Property property = players[location.Item1].ownedProperties[location.Item2];
+		Property property = players[location.Item1].ownedProperties[location.Item2]; //This caches the property information that was selected.
 
-		if (property.houses < 4)
+		if (!players[location.Item1].CheckColourSet(property.property_group)) //This checks if the player owns all of the properties in the group.
 		{
-			if (BuyHouse())
+			return; //This stops the function if they don't own all the properties in the group.
+		}
+
+		if (property.houses < 4) //This checks if the property has less than 4 houses.
+		{
+			if (BuyHouse()) //This then buys a house locally.
 			{
-				players[location.Item1].ownedProperties[location.Item2].addHouse();
+				players[location.Item1].ownedProperties[location.Item2].addHouse(); //This then buys the house in the Property class.
 			}
 		}
-		else if (property.houses == 4)
+		else if (property.houses == 4) //This checks if the property has enough houses to buy a hotel.
 		{
-			if (BuyHotel())
+			if (BuyHotel()) //This buys a hotel locally.
 			{
-				players[location.Item1].ownedProperties[location.Item2].addHouse();
-			}
-		}
-		
-		players[location.Item1].Pay(Convert.ToInt32(property.property_cost));
-	}
-
-	public void SellHouseOnProperty(string propertyName)
-	{
-		var location = FindOwner(propertyName);
-
-		Property property = players[location.Item1].ownedProperties[location.Item2];
-
-		if (property.houses <= 4 && property.houses > 0)
-		{
-			SellHouse();
-			players[location.Item1].ownedProperties[location.Item2].removeHouse();
-		}
-		else if (property.houses == 5)
-		{
-			if (SellHotel())
-			{
-				players[location.Item1].ownedProperties[location.Item2].removeHouse();
+				players[location.Item1].ownedProperties[location.Item2].addHouse(); //This then buys the hotel in the Property class.
 			}
 		}
 		
-		players[location.Item1].Pay(Convert.ToInt32(property.property_cost)/-2);
+		players[location.Item1].Pay(Convert.ToInt32(property.property_cost)); //This then makes the player pay for the house that they bought.
 	}
 
-	private bool BuyHouse()
+	public void SellHouseOnProperty(string propertyName) //This function links the UI button and this class to sell properties.
 	{
-		if (houses > 0)
+		var location = FindOwner(propertyName); //This function finds the owner and the position of the property in the owner's list of properties.
+
+		Property property = players[location.Item1].ownedProperties[location.Item2]; //This caches the property information that was selected.
+
+		if (property.houses <= 4 && property.houses > 0) //This checks if the properties has a house(s).
 		{
-			houses--;
-			return true;
+			SellHouse(); //This then locally sells the house(s) locally.
+			players[location.Item1].ownedProperties[location.Item2].removeHouse(); //This then removes the house in the Property class.
+		}
+		else if (property.houses == 5) //This checks if the property has a hotel.
+		{
+			if (SellHotel()) //This then sells the hotel locally.
+			{
+				players[location.Item1].ownedProperties[location.Item2].removeHouse(); //This then removes the hotel in the Property class.
+			}
+		}
+		
+		players[location.Item1].Pay(Convert.ToInt32(property.property_cost)/-2); //This then gives back the money to the player for half the house/hotel's cost.
+	}
+
+	private bool BuyHouse() //This function is used to buy houses locally.
+	{
+		if (houses > 0) //This checks if there are enough houses to buy.
+		{
+			houses--; //This removes a house from the board as the house can be bought.
+			return true; //This says that the house can be bought.
 		}
 
-		return false;
+		return false; //This says that the house cannot be bought.
 	}
 
-	private void SellHouse()
+	private void SellHouse() //This function is used to sell a house locally.
 	{
-		houses++;
+		houses++; //This adds a house to the board as the house has been sold.
 	}
 
-	private bool BuyHotel()
+	private bool BuyHotel() //This function is used to buy a hotel locally.
 	{
-		if (hotels > 0)
+		if (hotels > 0) //This checks if there are enough hotels on the board.
 		{
-			houses += 4;
-			hotels--;
-			return true;
+			houses += 4; //This adds 4 houses to the board as the player only has a hotel now.
+			hotels--; //This removes a hotel from the board.
+			return true; //This says that the hotel can be bought.
 		}
 
-		return false;
+		return false; //This says that the hotel cannot be bought.
 	}
 
-	private bool SellHotel()
+	private bool SellHotel() //This function is used to sell a hotel locally.
 	{
-		if (houses >= 4)
+		if (houses >= 4) //This first checks if there are enough houses to sell the hotel.
 		{
-			houses -= 4;
-			hotels++;
-			return true;
+			houses -= 4; //This removes 4 houses from the board and gives it to the property.
+			hotels++; //This then adds a hotel to the board.
+			return true; //This returns true to say that the hotel can be sold.
 		}
 
-		return false;
+		return false; //This returns false to say that the hotel cannot be sold.
 	}
 }
 

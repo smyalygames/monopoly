@@ -22,11 +22,26 @@ public class Inventory : MonoBehaviour
     public Button buyHouse;
     public TextMeshProUGUI buyHouseText;
     public Button sellHouse;
+    public TextMeshProUGUI sellHouseText;
     public Button mortgage;
     public TextMeshProUGUI mortgageText;
+    private Button lastButton;
 
     //This is the function that will be used when the user clicks to open the inventory.
-    public void OpenInventory() 
+
+    public void UpdateInventory() //This is meant to update what is on the property panel when 
+    {
+        if (inventoryPanel.activeSelf) //This checks if the inventory panel is open.
+        {
+            OpenInventory(); //This updates only the inventory panel.
+        }
+        else if (propertyPanel.activeSelf) //This checks if the property panel is open.
+        {
+            OpenProperties(lastButton); //This updates the properties panel.
+        }
+    }
+
+    public void OpenInventory() //This function renders the inventory pannel.
     {
         Player currentPlayer = main.board.players[main.board.currentPlayer]; //Initialises the current player to make the code look neater.
         for (int i = 0; i < properties.Length; i++) //Checks through all of the buttons.
@@ -44,6 +59,7 @@ public class Inventory : MonoBehaviour
 
     void OpenProperties(Button button) //This functions runs when a property has been clicked on in the inventory.
     {
+        lastButton = button; //This caches the previously used button for updating when closed and reopened.
         Property property = new Property(); //This is used for the property information to make the code look neater.
         int currentProperty = 50; //This is used for identifying the property in the ownedProperties list - 50 is used if the property wasn't found for some reason.
 
@@ -63,9 +79,11 @@ public class Inventory : MonoBehaviour
         propertyHouses.text = property.ParseHouses(); //This shows how many houses there are.
         
         backButton.onClick.AddListener(CloseProperties); //This adds a listener to go back to the main menu screen for the inventory.
-        
+
+        //These clears all of the previous listeners.
         buyHouse.onClick.RemoveAllListeners();
         sellHouse.onClick.RemoveAllListeners();
+        //These adds listeners to the sell and buy buttons for this specific property.
         buyHouse.onClick.AddListener(() => BuyHouse(currentProperty, property.property_name));
         sellHouse.onClick.AddListener(() => SellHouse(currentProperty, property.property_name));
 
@@ -93,6 +111,13 @@ public class Inventory : MonoBehaviour
                 break;
         }
         
+        if (!main.board.players[main.board.currentPlayer].CheckColourSet(property.property_group)) //This checks if all of the colour group properties are owned.
+        {
+            //If they aren't all owned, the buy and sell buttons will be disabled.
+            buyHouse.interactable = false;
+            sellHouse.interactable = false;
+        }
+        
         //Buttons
         if (!main.board.players[main.board.currentPlayer].ownedProperties[currentProperty].mortgage) //This checks if the property is not mortgaged.
         {
@@ -109,47 +134,60 @@ public class Inventory : MonoBehaviour
         propertyPanel.SetActive(true); //This shows the property specific menu.
     }
 
-    void BuyHouse(int currentProperty, string propertyName)
+    void BuyHouse(int currentProperty, string propertyName) //This is the function for the buy button.
     {
-        main.board.BuyHouseOnProperty(propertyName);
-        Property property = main.board.players[main.board.currentPlayer].ownedProperties[currentProperty];
-        propertyHouses.text = property.ParseHouses();
-        if (property.houses == 4)
+        main.board.BuyHouseOnProperty(propertyName); //This will pass the buy function in the main script.
+        
+        Property property = main.board.players[main.board.currentPlayer].ownedProperties[currentProperty]; //This caches the current property information.
+        
+        propertyHouses.text = property.ParseHouses(); //This changes the text for how many houses there are on the property.
+
+        switch (property.houses) //This now checks how many houses there are on the property.
         {
-            buyHouseText.text = "Buy Hotel";
-        } 
-        else if (property.houses > 4)
-        {
-            buyHouseText.text = "Buy Hotel";
-            buyHouse.interactable = false;
-        }
-        else
-        {
-            buyHouseText.text = "Buy House";
+            case 4: //This checks if there are enough houses to buy a hotel now.
+                buyHouseText.text = "Buy Hotel"; //This changes the text on the button to buying a hotel.
+                sellHouseText.text = "Sell House"; //This changes the text on the button to selling a house.
+                break;
+            case 5: //This checks if the property has reached its limit on buying properties.
+                buyHouseText.text = "Buy Hotel"; //This changes the text on the button to buying a hotel.
+                sellHouseText.text = "Sell Hotel"; //This changes the text on the button to selling a hotel.
+                buyHouse.interactable = false; //This disables the user from buying more houses.
+                break;
+            default:
+                buyHouseText.text = "Buy House"; //If there aren't enough for a hotel, the button will display Buy House.
+                sellHouseText.text = "Sell House"; //This changes the button text to selling a house.
+                break;
         }
 
-        sellHouse.interactable = true;
+        sellHouse.interactable = true; //As when a property will be bought, it will immediately allow the user to sell their houses.
     }
 
-    void SellHouse(int currentProperty, string propertyName)
+    void SellHouse(int currentProperty, string propertyName) //This is the function for the buy button.
     {
-        main.board.SellHouseOnProperty(propertyName);
-        Property property = main.board.players[main.board.currentPlayer].ownedProperties[currentProperty];
-        propertyHouses.text = property.ParseHouses();
-        if (property.houses == 0)
-        {
-            sellHouse.interactable = false;
-        } 
-        else if (property.houses < 4)
-        {
-            buyHouseText.text = "Buy House";
-        }
-        else if (property.houses >= 4)
-        {
-            buyHouseText.text = "Buy Hotel";
-        }
+        main.board.SellHouseOnProperty(propertyName); //This will pass the sell function in the main script.
         
-        buyHouse.interactable = true;
+        Property property = main.board.players[main.board.currentPlayer].ownedProperties[currentProperty]; //This caches the current property information.
+        
+        propertyHouses.text = property.ParseHouses(); //This changes the text for how many houses there are on the property.
+
+        switch (property.houses) //This now checks how many houses there are on the property.
+        {
+            case 0: //This checks if there are 0 houses left.
+                buyHouseText.text = "Buy House"; //This changes the button text to buying a house.
+                sellHouseText.text = "Sell House"; //This changes the button text to selling a house.
+                sellHouse.interactable = false; //If there are no more houses, the player can't sell anymore, so the sell button will be disabled.
+                break;
+            case 4: //This is for when they have sold the hotel.
+                buyHouseText.text = "Buy Hotel"; //This changes the button text to buying a hotel.
+                sellHouseText.text = "Sell House"; //This changes the button text to selling a house.
+                break;
+            default:
+                buyHouseText.text = "Buy House"; //This changes the button text to buying a house.
+                sellHouseText.text = "Sell House"; //This changes the button text to selling a house.
+                break;
+        }
+
+        buyHouse.interactable = true; //As when a property is sold, it means that the houses aren't at its max and hence enables the buy button. 
     }
 
     void Mortgage(int currentProperty) //This function runs when the Mortgage button has been pressed.
@@ -174,6 +212,7 @@ public class Inventory : MonoBehaviour
 
     void CloseProperties() //This closes the property specific window and goes to the inventory main menu.
     {
+        OpenInventory(); //This updates the inventory panel.
         propertyPanel.SetActive(false); //This closes the property specific window.
         inventoryPanel.SetActive(true); //This opens the inventory main menu.
     }
