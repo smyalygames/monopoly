@@ -53,13 +53,13 @@ public class Movement : MonoBehaviour
 			if (position == 30) //This checks if the player has landed on go to jail.
 			{
 				main.board.players[currentPlayer].GoToJail();
-				//main.board.NextPlayer();
 				return;
 			}
 
 			if (!main.board.CheckBuyable(roll))
 			{
 				main.board.CheckFees();
+				main.board.NextPlayer();
 			}
 		}
 

@@ -175,7 +175,7 @@ public class Board //Creating the class for the board mechanics.
 			textHandler.updateTile(propertyName); //Updates the UI text for the property info without the value of the property
 		}
 		
-		buttonHandler.disableRollDice(); //Disables the user from being able to roll the dice whilst the player is moving
+		buttonHandler.DisableRollDice(); //Disables the user from being able to roll the dice whilst the player is moving
 	}
 
 	public void CheckFees() //This checks if the player has to pay for landing on a property
@@ -203,6 +203,7 @@ public class Board //Creating the class for the board mechanics.
 		{
 			currentPlayer++; //Increments the queue to the next player
 		}
+		buttonHandler.EnableRollDice(); //Re-enables the user to roll the dice.
 	}
 
 	public bool CheckBuyable(int position) //This checks if the property can be bought by the user.
@@ -214,12 +215,12 @@ public class Board //Creating the class for the board mechanics.
 		{
 			if (property.property_name == avaliableProperties[i].property_name) //Checks if the name exists in the available properties that can be purchased.
 			{
-				buttonHandler.enableBuying(); //If it can, it will return true and break from the function
+				buttonHandler.EnableBuying(); //If it can, it will return true and break from the function
 				return true; //Returns true if the property is buyable.
 			}
 		}
-		buttonHandler.disableBuying(); //If the name is not found, the property has not been found.
-		buttonHandler.enableRollDice(); //Allows the user to roll the dice if the property cannot be bought
+		buttonHandler.DisableBuying(); //If the name is not found, the property has not been found.
+		buttonHandler.EnableRollDice(); //Allows the user to roll the dice if the property cannot be bought
 		return false; //Returns false if the property is not buybale.
 	}
 
@@ -248,8 +249,8 @@ public class Board //Creating the class for the board mechanics.
 		if (money - property.property_value < 0) //Checks if the player doesn't have enough money to pay for it
 		{
 			Debug.Log("The player doesn't have enough money!");
-			buttonHandler.disableBuying(); //Removes the buy button.
-			buttonHandler.enableRollDice(); //Re-enables the user to roll the dice.
+			buttonHandler.DisableBuying(); //Removes the buy button.
+			buttonHandler.EnableRollDice(); //Re-enables the user to roll the dice.
 			return; //Stops the function
 		}
 
@@ -260,8 +261,8 @@ public class Board //Creating the class for the board mechanics.
 				avaliableProperties.RemoveAt(i); //Removes the property from the list.
 				players[currentPlayer].BuyProperty(property); //This buys the property in the player class
 				textHandler.updateMoney(players[currentPlayer].money); //This updates the amount of money the player has.
-				buttonHandler.disableBuying(); //Removes the buy button.
-				buttonHandler.enableRollDice(); //Re-enables the user to roll the dice.
+				buttonHandler.DisableBuying(); //Removes the buy button.
+				buttonHandler.EnableNextTurn();
 				return; //Stops the function
 			}
 		}
@@ -359,6 +360,11 @@ public class Board //Creating the class for the board mechanics.
 		}
 
 		return false; //This returns false to say that the hotel cannot be sold.
+	}
+
+	private void PayRent()
+	{
+		
 	}
 }
 

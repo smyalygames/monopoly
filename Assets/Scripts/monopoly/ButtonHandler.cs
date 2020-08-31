@@ -9,6 +9,8 @@ public class ButtonHandler : MonoBehaviour
     public Button rollDice;
     public GameObject buyButton;
     public Button buyButtonButton;
+    public Button nextTurn;
+    public GameObject nextTurnObj;
 
     //Inventory
     public GameObject PropertyUI;
@@ -17,24 +19,35 @@ public class ButtonHandler : MonoBehaviour
     private bool inventoryOpen = false;
     private Inventory inventoryClass;
 
-    public void disableRollDice()
+    public void DisableRollDice()
     {
         rollDice.interactable = false;
     }
 
-    public void enableRollDice()
+    public void EnableRollDice()
     {
         rollDice.interactable = true;
     }
 
-    public void disableBuying()
+    public void DisableBuying()
     {
         buyButton.SetActive(false);
     }
 
-    public void enableBuying()
+    public void EnableBuying()
     {
         buyButton.SetActive(true);
+    }
+
+    public void EnableNextTurn()
+    {
+        nextTurnObj.SetActive(true);
+    }
+
+    void NextTurn()
+    {
+        main.board.NextPlayer();
+        nextTurnObj.SetActive(false);
     }
 
     void OpenInventory()
@@ -77,6 +90,7 @@ public class ButtonHandler : MonoBehaviour
     void Start()
     {
         buyButtonButton.onClick.AddListener(BuyPropertyClick);
+        nextTurn.onClick.AddListener(NextTurn);
         inventory.onClick.AddListener(ToggleInventory);
     }
 

@@ -41,11 +41,16 @@ public class Inventory : MonoBehaviour
         }
     }
 
-    public void OpenInventory() //This function renders the inventory pannel.
+    public void OpenInventory() //This function renders the inventory panel.
     {
         Player currentPlayer = main.board.players[main.board.currentPlayer]; //Initialises the current player to make the code look neater.
         for (int i = 0; i < properties.Length; i++) //Checks through all of the buttons.
         {
+            if (currentPlayer.ownedProperties.Count == 0)
+            {
+                properties[i].interactable = false;
+                break;
+            }
             for (int j = 0; j < currentPlayer.ownedProperties.Count; j++) //Checks through all of the owned properties.
             {
                 if (currentPlayer.ownedProperties[j].property_name == properties[i].name) //Checks if the names of the property is the same as the button name/
@@ -53,6 +58,8 @@ public class Inventory : MonoBehaviour
                     properties[i].interactable = true; //Makes the button for the property interactable.
                     break; //Stops the j for loop as the owned properties list is in order.
                 }
+                
+                properties[i].interactable = false;
             }
         }
     }
