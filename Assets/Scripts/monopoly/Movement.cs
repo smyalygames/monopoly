@@ -53,10 +53,9 @@ public class Movement : MonoBehaviour
 				return;
 			}
 
-			if (!main.board.CheckBuyable(roll))
+			if (!main.board.CheckProperty(roll))
 			{
 				main.board.CheckFees();
-				main.board.NextPlayer();
 			}
 		}
 

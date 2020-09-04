@@ -148,9 +148,10 @@ public class Board //Creating the class for the board mechanics.
 	public int currentPlayer = 0;
 	public List<Property> existingProperties;
 	public List<Property> avaliableProperties = new List<Property>(); //Has a list of all the available properties.
-	
+	public List<Cards> chance = new List<Cards>();
+	public List<Cards> communityChest = new List<Cards>();
 
-	public Board(List<Player> players, List<Property> properties)
+	public Board(List<Player> players, List<Property> properties, List<Cards> existingCards)
 	{
 		this.players = players; //Imports all of the players playing
 		Debug.Log(this.players.Count); //Prints how many players are playing
@@ -169,16 +170,30 @@ public class Board //Creating the class for the board mechanics.
 				avaliableProperties.Add(properties[i]);
 			}
 		}
+		
+		//This appends all the cards into their own respective pile.
+		foreach (Cards card in existingCards)
+		{
+			switch (card.card_group) //Checks what group the card is in.
+			{
+				case 0: //If it is a chance card.
+					chance.Add(card);
+					break;
+				case 1: //If it is a community chest card.
+					communityChest.Add(card);
+					break;
+			}
+		}
 	}
 
 	public void MovePlayer(int roll) //This moves the player
 	{
 		players[currentPlayer].Move(roll); //This is telling the player to move in the local player class.
-		textHandler.updateRoll(roll); //This is updating the text on the screen for the roll
+		textHandler.UpdateRoll(roll); //This is updating the text on the screen for the roll
 		
 		//Money UI
 		int money = players[currentPlayer].money; //Gets the money the player has
-		textHandler.updateMoney(money); //Updates the money on the UI
+		textHandler.UpdateMoney(money); //Updates the money on the UI
 		
 		//Property UI
 		string propertyName = existingProperties[players[currentPlayer].position].property_name; //Gets the property name from where the player is at
@@ -186,11 +201,11 @@ public class Board //Creating the class for the board mechanics.
 
 		if (propertyValue != 0) //This is for if the property can be bought
 		{
-			textHandler.updateProperty(propertyName, propertyValue); //Updates the UI text for the property info
+			textHandler.UpdateProperty(propertyName, propertyValue); //Updates the UI text for the property info
 		}
 		else
 		{
-			textHandler.updateTile(propertyName); //Updates the UI text for the property info without the value of the property
+			textHandler.UpdateTile(propertyName); //Updates the UI text for the property info without the value of the property
 		}
 		
 		buttonHandler.DisableRollDice(); //Disables the user from being able to roll the dice whilst the player is moving
@@ -205,7 +220,7 @@ public class Board //Creating the class for the board mechanics.
 		if (currentProperty.property_rent >= 100) //Only tax tiles have a rent value of 100 or 200
 		{
 			players[currentPlayer].Pay(Convert.ToInt32(currentProperty.property_rent)); //Makes the player pay the tax and converts int? to int
-			textHandler.updateMoney(players[currentPlayer].money); //Updates the UI for the current amount of money the player has.
+			textHandler.UpdateMoney(players[currentPlayer].money); //Updates the UI for the current amount of money the player has.
 			return;
 		}
 
@@ -284,7 +299,7 @@ public class Board //Creating the class for the board mechanics.
 			players[findProperty.Item1].Pay(-payment); //This gives the property owner the money.
 		}
 		
-		textHandler.updateMoney(players[currentPlayer].money); //Updates the UI for the current amount of money the player has.
+		textHandler.UpdateMoney(players[currentPlayer].money); //Updates the UI for the current amount of money the player has.
 	}
 
 	public void NextPlayer() //This moves the queue to the next player. TODO
@@ -298,14 +313,26 @@ public class Board //Creating the class for the board mechanics.
 		{
 			currentPlayer++; //Increments the queue to the next player
 		}
-		textHandler.updateMoney(players[currentPlayer].money); //Changes the amount of money the new player has.
+		textHandler.UpdateMoney(players[currentPlayer].money); //Changes the amount of money the new player has.
 		buttonHandler.EnableRollDice(); //Re-enables the user to roll the dice.
 	}
 
-	public bool CheckBuyable(int position) //This checks if the property can be bought by the user.
+	public bool CheckProperty(int position) //This checks if the property can be bought by the user.
 	{
 
 		Property property = existingProperties[position]; //Gets the property the player is currently at.
+
+		if (property.property_group == "chance")
+		{
+			UseCard(0);
+			return false;
+		} 
+		
+		if (property.property_group == "chest")
+		{
+			UseCard(1);
+			return false;
+		}
 		
 		for (int i = 0; i < avaliableProperties.Count; i++) //Checks through all of the properties that are buyable using a linear search
 		{
@@ -316,7 +343,7 @@ public class Board //Creating the class for the board mechanics.
 			}
 		}
 		buttonHandler.DisableBuying(); //If the name is not found, the property has not been found.
-		buttonHandler.EnableRollDice(); //Allows the user to roll the dice if the property cannot be bought
+		buttonHandler.EnableNextTurn(); //Allows the user to roll the dice if the property cannot be bought
 		return false; //Returns false if the property is not buybale.
 	}
 
@@ -356,7 +383,7 @@ public class Board //Creating the class for the board mechanics.
 			{
 				avaliableProperties.RemoveAt(i); //Removes the property from the list.
 				players[currentPlayer].BuyProperty(property); //This buys the property in the player class
-				textHandler.updateMoney(players[currentPlayer].money); //This updates the amount of money the player has.
+				textHandler.UpdateMoney(players[currentPlayer].money); //This updates the amount of money the player has.
 				buttonHandler.DisableBuying(); //Removes the buy button.
 				buttonHandler.EnableNextTurn();
 				return; //Stops the function
@@ -456,6 +483,20 @@ public class Board //Creating the class for the board mechanics.
 		}
 
 		return false; //This returns false to say that the hotel cannot be sold.
+	}
+
+	public void UseCard(int group) //TODO
+	{
+		switch (group)
+		{
+			case 0:
+				textHandler.ShowCard(group, chance[0].card_text);
+				break;
+			case 1:
+				textHandler.ShowCard(group, communityChest[0].card_text);
+				break;
+		}
+		buttonHandler.EnableNextTurn();
 	}
 }
 
@@ -624,6 +665,7 @@ public class Player
 public class Main : MonoBehaviour
 {
 	private List<Property> existingProperties;
+	private List<Cards> existingCards;
 	public Board board;
 
 	//Player variables
@@ -636,7 +678,8 @@ public class Main : MonoBehaviour
 		players.Add(new Player("coomer", 1, GameObject.Find("/Players/Player2")));
 		Debug.Log(players[0].name); //This is just checking if the player has been assigned.
 		existingProperties = JsonConvert.DeserializeObject<List<Property>>(FileHandler.LoadProperties()); //This loads via JSON all the properties from a file which was originally downloaded from a server.
-		board = new Board(players, existingProperties); //Creates the board class.
+		existingCards = JsonConvert.DeserializeObject<List<Cards>>(FileHandler.LoadCards()); //This loads via JSON all the cards from a file which was originally downloaded from a server.
+		board = new Board(players, existingProperties, existingCards); //Creates the board class.
 	}
 	
 }

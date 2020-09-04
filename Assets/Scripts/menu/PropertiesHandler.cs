@@ -16,6 +16,16 @@ public static class PropertiesHandler
         formatter.Serialize(stream, data);
         stream.Close();
     }
+    
+    public static void SaveCards(string data)
+    {
+        BinaryFormatter formatter = new BinaryFormatter();
+        string path = Application.persistentDataPath + "/cards.smyal";
+        FileStream stream = new FileStream(path, FileMode.Create);
+
+        formatter.Serialize(stream, data);
+        stream.Close();
+    }
 
     public static string LoadProperties()
     {
@@ -36,10 +46,36 @@ public static class PropertiesHandler
             return null;
         }
     }
+    
+    public static string LoadCards()
+    {
+        string path = Application.persistentDataPath + "/cards.smyal";
+        if (File.Exists(path))
+        {
+            BinaryFormatter  formatter = new BinaryFormatter();
+            FileStream stream = new FileStream(path, FileMode.Open);
 
-    public static bool checkExists()
+            string data = formatter.Deserialize(stream) as string;
+            stream.Close();
+
+            return data;
+        }
+        else
+        {
+            Debug.LogError("Save file not found in " + path);
+            return null;
+        }
+    }
+
+    public static bool CheckPropertyExists()
     {
         string path = Application.persistentDataPath + "/properties.smyal";
+        return File.Exists(path);
+    }
+
+    public static bool CheckCardExists()
+    {
+        string path = Application.persistentDataPath + "/cards.smyal";
         return File.Exists(path);
     }
 

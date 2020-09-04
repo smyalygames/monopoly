@@ -1,0 +1,15 @@
+1 - move | extra - move to x (position)
+2 - bank gives money | extra - give x money (money)
+3 - make repairs 25 per house and 100 per hotel.
+4 - advance to the nearest station - requires calculation pay the owner 2x the rent
+5 - advance to the nearest utility - make player roll dice, then pay owner 10x entitled pay.
+6 - pay each player a sum of money | extra - money x
+7 - pay bank | extra - money x
+8 - go back 3 steps.
+9 - get out of jail free card
+10 - street repairs, 40 per house and 115 per hotel.
+11 - collect money from every player | extra - money x
+
+groups:
+1 - chance
+2 - community chest

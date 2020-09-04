@@ -19,6 +19,9 @@ public class ButtonHandler : MonoBehaviour
     private bool inventoryOpen = false;
     private Inventory inventoryClass;
 
+    public GameObject card;
+    public Button cardButton;
+
     public void DisableRollDice()
     {
         rollDice.interactable = false;
@@ -79,6 +82,11 @@ public class ButtonHandler : MonoBehaviour
         }
     }
 
+    void CloseCard()
+    {
+        card.SetActive(false);
+    }
+
     private Main main;
 
     void Awake()
@@ -92,6 +100,7 @@ public class ButtonHandler : MonoBehaviour
         buyButtonButton.onClick.AddListener(BuyPropertyClick);
         nextTurn.onClick.AddListener(NextTurn);
         inventory.onClick.AddListener(ToggleInventory);
+        cardButton.onClick.AddListener(CloseCard);
     }
 
     void BuyPropertyClick() {
