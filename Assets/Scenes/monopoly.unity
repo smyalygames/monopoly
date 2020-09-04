@@ -1315,8 +1315,10 @@ MonoBehaviour:
   propertyHouses: {fileID: 845172791}
   buyHouse: {fileID: 569742455}
   buyHouseText: {fileID: 756575550}
+  buyHouseObject: {fileID: 569742453}
   sellHouse: {fileID: 505820772}
   sellHouseText: {fileID: 1720726636}
+  sellHouseObject: {fileID: 505820770}
   mortgage: {fileID: 516041487}
   mortgageText: {fileID: 1679217085}
 --- !u!1 &314548389
@@ -5070,47 +5072,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ede8e3ed967bcfe42886d342fcf3d755, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  waypoints:
-  - {fileID: 2040913807}
-  - {fileID: 1423005143}
-  - {fileID: 1749395327}
-  - {fileID: 314548389}
-  - {fileID: 761114116}
-  - {fileID: 166623133}
-  - {fileID: 411864597}
-  - {fileID: 560206914}
-  - {fileID: 1199958678}
-  - {fileID: 1404003864}
-  - {fileID: 1087609445}
-  - {fileID: 1375901707}
-  - {fileID: 1238945411}
-  - {fileID: 1505232919}
-  - {fileID: 810784022}
-  - {fileID: 499883582}
-  - {fileID: 1080505466}
-  - {fileID: 1119039445}
-  - {fileID: 1940830137}
-  - {fileID: 499620130}
-  - {fileID: 972976545}
-  - {fileID: 590874663}
-  - {fileID: 1818920705}
-  - {fileID: 1109256243}
-  - {fileID: 936547545}
-  - {fileID: 1829387025}
-  - {fileID: 831767436}
-  - {fileID: 932880231}
-  - {fileID: 725757057}
-  - {fileID: 585914354}
-  - {fileID: 333978162}
-  - {fileID: 1813933102}
-  - {fileID: 1882655982}
-  - {fileID: 142458921}
-  - {fileID: 1440775784}
-  - {fileID: 2049931686}
-  - {fileID: 1747654226}
-  - {fileID: 768846290}
-  - {fileID: 399889870}
-  - {fileID: 724284469}
 --- !u!114 &983314468
 MonoBehaviour:
   m_ObjectHideFlags: 0

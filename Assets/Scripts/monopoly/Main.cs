@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using UnityEngine;
 using Newtonsoft.Json;
 using UnityEditor;
@@ -88,13 +87,32 @@ public class Property
 	{
 		string parsedString; //This is the string that will be returned in the end.
 		//This plugs in the value of each variable into the string.
-		parsedString = $"Rent: {property_rent}\n" +
-		               $"Colour Set: {property_rent*2}\n" +
-		               $"1 House: {property_house1}\n" +
-		               $"2 Houses: {property_house2}\n" +
-		               $"3 Houses: {property_house3}\n" +
-		               $"4 Houses: {property_house4}\n" +
-		               $"Hotel: {property_hotel}";
+		switch (property_group) //This checks the property group
+		{
+			case "station": //This checks if the property is a station.
+				parsedString = "Rent: 25\n" +
+				               "If 2 Stations are owned: 50\n" +
+				               "If 3 Stations are owned: 100\n" +
+				               "If 4 Stations are owned: 200\n";
+				break;
+			case "utilities": //This checks if the property is a utility.
+				parsedString = "If one Utility is owned,\n" +
+				               "rent is 4 times amount\n" +
+				               "shown on dice.\n\n" +
+				               "If both Utilities are owned,\n" +
+				               "rent is 10 times amount\n" +
+				               "shown on dice.";
+				break;
+			default: //This is for the rest of the properties.
+				parsedString = $"Rent: {property_rent}\n" +
+				               $"Colour Set: {property_rent*2}\n" +
+				               $"1 House: {property_house1}\n" +
+				               $"2 Houses: {property_house2}\n" +
+				               $"3 Houses: {property_house3}\n" +
+				               $"4 Houses: {property_house4}\n" +
+				               $"Hotel: {property_hotel}";
+				break;
+		}
 		return parsedString; //This returns the parsed string.
 	}
 
@@ -187,6 +205,83 @@ public class Board //Creating the class for the board mechanics.
 		if (currentProperty.property_rent >= 100) //Only tax tiles have a rent value of 100 or 200
 		{
 			players[currentPlayer].Pay(Convert.ToInt32(currentProperty.property_rent)); //Makes the player pay the tax and converts int? to int
+			textHandler.updateMoney(players[currentPlayer].money); //Updates the UI for the current amount of money the player has.
+			return;
+		}
+
+		var findProperty = FindOwner(currentProperty.property_name);
+
+		if (findProperty.Item1 != 404)
+		{
+			int payment = 0;
+
+			switch (currentProperty.property_group) //This checks the specific payment method per property type.
+			{
+				case "station": //If it is a station.
+					switch (players[findProperty.Item1].CountProperties(currentProperty.property_group)) //Checks how many stations the owner owns.
+					{
+						case 1: //If 1, the player has to pay 25
+							payment = 25;
+							break;
+						case 2: //If 2, the player has to pay 50
+							payment = 50;
+							break;
+						case 3: //If 3, the player has to pay 100
+							payment = 100;
+							break;
+						case 4: //If 4, the player has to pay 200
+							payment = 200;
+							break;
+					}
+
+					break;
+				
+				case "utilities": //If it is a utility.
+					switch (players[findProperty.Item1].CountProperties(currentProperty.property_group)) //Checks how many utilities the owner owns.
+					{
+						case 1: //If it is 1, then the dice roll gets multiplied by 4 and that's how much they pay.
+							payment = players[currentPlayer].diceRoll * 4;
+							break;
+						case 2: //If it is 2, then the dice roll gets multiplied by 10 and that's how much they pay.
+							payment = players[currentPlayer].diceRoll * 10;
+							break;
+					}
+
+					break;
+				
+				default: //Else, if it's a normal property.
+					switch (currentProperty.houses) //Checks how many houses the owner has on the property.
+					{
+						case 0:
+							if (players[findProperty.Item1].CheckColourSet(currentProperty.property_group)) //This checks if the player owns the whole colour set.
+							{
+								payment = Convert.ToInt32(currentProperty.property_rent)*2; //If they do own the whole colour set, the rent gets increased by 2.
+								break;
+							}
+							payment = Convert.ToInt32(currentProperty.property_rent); //If they don't own the whole colour set, its the normal rent.
+							break;
+						case 1: //This is if the player has 1 house.
+							payment = Convert.ToInt32(currentProperty.property_house1);
+							break;
+						case 2: //This is if the player has 2 houses.
+							payment = Convert.ToInt32(currentProperty.property_house2);
+							break;
+						case 3: //This is if the player has 3 houses.
+							payment = Convert.ToInt32(currentProperty.property_house3);
+							break;
+						case 4: //This is if the player has 4 houses.
+							payment = Convert.ToInt32(currentProperty.property_house4);
+							break;
+						case 5: //This is if the player has a hotel.
+							payment = Convert.ToInt32(currentProperty.property_hotel);
+							break;
+					}
+
+					break;
+			}
+
+			players[currentPlayer].Pay(payment); //This charges the player that landed on the property.
+			players[findProperty.Item1].Pay(-payment); //This gives the property owner the money.
 		}
 		
 		textHandler.updateMoney(players[currentPlayer].money); //Updates the UI for the current amount of money the player has.
@@ -203,6 +298,7 @@ public class Board //Creating the class for the board mechanics.
 		{
 			currentPlayer++; //Increments the queue to the next player
 		}
+		textHandler.updateMoney(players[currentPlayer].money); //Changes the amount of money the new player has.
 		buttonHandler.EnableRollDice(); //Re-enables the user to roll the dice.
 	}
 
@@ -237,7 +333,7 @@ public class Board //Creating the class for the board mechanics.
 			}
 		}
 
-		return (0, 0); //Default error.
+		return (404, 404); //Default error.
 	}
 
 	public void BuyProperty()
@@ -361,11 +457,6 @@ public class Board //Creating the class for the board mechanics.
 
 		return false; //This returns false to say that the hotel cannot be sold.
 	}
-
-	private void PayRent()
-	{
-		
-	}
 }
 
 public class Player
@@ -375,6 +466,7 @@ public class Player
 	public int money; //Initializes the variable for money.
 	public int position; //Positions vary from 0-39 (40 squares on the board) (Go is 0)
 	public bool inJail; //This enables specific in jail functions
+	public int diceRoll;
 	public List<Property> ownedProperties; //This is the list of properties that the player owns.
 	public GameObject player;
 	private Movement movement;
@@ -396,6 +488,7 @@ public class Player
 	public void Move(int roll) //This moves the player a certain length (what they got from rolling the dice).
 	{
 
+		diceRoll = roll;
 		int previousPosition = position; //This saves the previous position the player was at
 		
 		position += roll; //Add the position with what was rolled.
@@ -465,10 +558,34 @@ public class Player
 		return (counter == required);
 	}
 
+	public int CountProperties(string colour) //This counts how many properties the player owns in a property group.
+	{
+		int required = 3; //This is the number of properties needed to own to buy houses.
+		int counter = 0; //This checks how many times the property is found.
+		
+		if (colour == "brown" || colour == "dark blue" || colour == "utilities") //Only brown, dark blue and utilities has 2 properties.
+		{
+			required = 2;
+		}
+		else if (colour == "station") //This is if it is a station.
+		{
+			required = 4;
+		}
+		
+		for (int i = 0; i < ownedProperties.Count && counter != required; i++)
+		{
+			if (ownedProperties[i].property_group == colour) //Checks if the owned property is in the same colour group.
+			{
+				counter++; //Increments the counter if a property was found to be owned.
+			}
+		}
+
+		return counter; //Returns how many of the colour that the player owns.
+	}
+
 	public void Pay(float fee) //This function makes the user pay.
 	{
 		money -= Convert.ToInt32(fee); //This deducts the money from the user's balance.
-		textHandler.updateMoney(money); //This updates the text on the screen for the user.
 	}
 	
 	public bool Mortgage(int currentProperty) //This is used for mortgaging a property.
@@ -502,82 +619,11 @@ public class Player
 
 		return false; //Says that mortgaging has not been done successfully.
 	}
-	
-}
-
-public static class MergeMethod
-{
-	public static List<Property> MergeSort(List<Property> unsorted)
-	{	
-		
-		if (unsorted.Count <= 1) //Checks if the list is longer than 1 to do a merge sort
-		{
-			return unsorted; //Stops the function if the length is 1 or less
-		}
-
-		int middle = unsorted.Count / 2; //Does an integer division of 2
-
-		List<Property> left = new List<Property>(); //Creates a list for the left items in the list.
-		List<Property> right = new List<Property>(); //Creates a list for the right items in the list.
-
-
-		for (int i = 0; i < middle; i++) //Adds the left half of the unsorted list to the left list.
-		{
-			left.Add(unsorted[i]);
-		}
-
-		for (int i = middle; i < unsorted.Count; i++) //Adds the rest of the unsorted list to the right list.
-		{
-			right.Add(unsorted[i]);
-		}
-		
-		//Uses recursion to get to return early.
-		left = MergeSort(left);
-		right = MergeSort(right);
-		
-		//Merges the lists.
-		return Merge(left, right);
-	}
-
-	private static List<Property> Merge(List<Property> left, List<Property> right)
-	{
-		List<Property> sorted = new List<Property>(); //Creates the list with the sort.
-
-		while (left.Count > 0 || right.Count > 0) //While operates as the left and right lists aren't empty.
-		{
-			if (left.Count > 0 && right.Count > 0) //Checks if none of the lists are empty.
-			{
-				if (left.First().property_id <= right.First().property_id) //Checks if the left one is smaller than the right one.
-				{
-					sorted.Add(left.First());
-					left.Remove(left.First());
-				}
-				else //If the right one is smaller than the left one then...
-				{
-					sorted.Add(right.First());
-					right.Remove(right.First());
-				}
-			}
-			else if (left.Count > 0) //Runs if the only list left is the left one.
-			{
-				sorted.Add(left.First());
-				left.Remove(left.First());
-			}
-			else if (right.Count > 0) //Runs if the only list left is the right one.
-			{
-				sorted.Add(right.First());
-				right.Remove(right.First());
-			}
-		}
-
-		return sorted; //Returns the sorted list.
-	}
 }
 
 public class Main : MonoBehaviour
 {
 	private List<Property> existingProperties;
-	public GameObject[] waypoints; //These are all the predefined waypoints on the board.
 	public Board board;
 
 	//Player variables

@@ -21,8 +21,10 @@ public class Inventory : MonoBehaviour
     public TextMeshProUGUI propertyHouses;
     public Button buyHouse;
     public TextMeshProUGUI buyHouseText;
+    public GameObject buyHouseObject;
     public Button sellHouse;
     public TextMeshProUGUI sellHouseText;
+    public GameObject sellHouseObject;
     public Button mortgage;
     public TextMeshProUGUI mortgageText;
     private Button lastButton;
@@ -123,6 +125,19 @@ public class Inventory : MonoBehaviour
             //If they aren't all owned, the buy and sell buttons will be disabled.
             buyHouse.interactable = false;
             sellHouse.interactable = false;
+        }
+
+        if (property.property_group == "station" || property.property_group == "utilities") //This checks if the property is a station or a utility.
+        {
+            //This disables buying for stations or utility.
+            buyHouseObject.SetActive(false);
+            sellHouseObject.SetActive(false);
+        }
+        else
+        {
+            //This re-enables buying for houses.
+            buyHouseObject.SetActive(true);
+            sellHouseObject.SetActive(true);
         }
         
         //Buttons
