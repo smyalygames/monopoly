@@ -149,7 +149,9 @@ public class Board //Creating the class for the board mechanics.
 	public List<Property> existingProperties;
 	public List<Property> avaliableProperties = new List<Property>(); //Has a list of all the available properties.
 	public List<Cards> chance = new List<Cards>();
+	private int chancePointer;
 	public List<Cards> communityChest = new List<Cards>();
+	private int communityPointer;
 
 	public Board(List<Player> players, List<Property> properties, List<Cards> existingCards)
 	{
@@ -161,7 +163,7 @@ public class Board //Creating the class for the board mechanics.
 		houses = 32; //Defining the amount of houses - They have a finite amount
 		hotels = 12; //Defining the amount of hotels - They have a finite amount
 		totalProperties = 28; //Sets the total properties in the game
-		
+
 		//Creates a list for all the buyable properties
 		for (int i=0; i < properties.Count; i++)
 		{
@@ -184,6 +186,9 @@ public class Board //Creating the class for the board mechanics.
 					break;
 			}
 		}
+		
+		chancePointer = 0;
+		communityPointer = 0;
 	}
 
 	public void MovePlayer(int roll) //This moves the player
@@ -487,16 +492,134 @@ public class Board //Creating the class for the board mechanics.
 
 	public void UseCard(int group) //TODO
 	{
-		switch (group)
+		Cards card = new Cards(); //This initializes the variable card.
+		
+		switch (group)//This opens the menu to say what card the player has got.
 		{
-			case 0:
-				textHandler.ShowCard(group, chance[0].card_text);
+			case 0: //This is for Chance.
+				card = SelectCard(group); //This selects a card from the deck.
+				textHandler.ShowCard(group, chance[0].card_text); //This displays the card details on the UI.
 				break;
-			case 1:
-				textHandler.ShowCard(group, communityChest[0].card_text);
+			case 1: //This is for Community Chest.
+				card = SelectCard(group); //This selects a card from the deck.
+				textHandler.ShowCard(group, communityChest[0].card_text); //This displays the card details on the UI.
 				break;
 		}
-		buttonHandler.EnableNextTurn();
+
+		(int, int) properties; //This is initialised to count the properties.
+		int houses; //This is initialised to calculate the total cost of each house.
+		int hotels; //This is initialised to calculate the total cost of each hotel.
+		int extra; //This is used for converting extra to an int.
+		int payment; //This is used to calculate the total payment required.
+		
+		switch (card.card_function) //This performs the function of the card.
+		{
+			case 1:
+				//1 - move | extra - move to x (position)
+				//TODO
+				break;
+			case 2:
+				//2 - bank gives money | extra - give x money (money)
+				players[currentPlayer].Pay(-Convert.ToInt32(card.extra)); //This gives the player with what's predefined in extra converted to an int.
+				break;
+			case 3:
+				//3 - make repairs 25 per house and 100 per hotel.
+				properties = players[currentPlayer].CountProperties(); //This counts how many houses and hotels the player owns.
+				houses = properties.Item1 * 25; //This charges 25 per house the player owns.
+				hotels = properties.Item2 * 100; //This charges 100 per hotel the player owns.
+				players[currentPlayer].Pay(houses + hotels); //The player gets fined here.
+				break;
+			case 4:
+				//4 - advance to the nearest station - requires calculation pay the owner 2x the rent
+				//TODO
+				break;
+			case 5:
+				//5 - advance to the nearest utility - make player roll dice, then pay owner 10x entitled pay.
+				//TODO
+				break;
+			case 6:
+				//6 - pay each player a sum of money | extra - money x
+				extra = Convert.ToInt32(card.extra); //This converts extra to an int.
+				payment = extra * (players.Count - 1); //This defines how much the player has to pay to each player.
+				players[currentPlayer].Pay(payment); //This charges the current player.
+
+				for (int i = 0; i < players.Count; i++) //This for loop will give every player the extra money.
+				{
+					if (i != currentPlayer) //This checks if the current player is not himself.
+					{
+						players[i].Pay(-extra); //This gives the player the money.
+					}
+				}
+
+				break;
+			case 7:
+				//7 - pay bank | extra - money x
+				players[currentPlayer].Pay(Convert.ToInt32(card.extra)); //This charges the player with what's predefined in extra converted to an int.
+				break;
+			case 8:
+				//8 - go back 3 steps.
+				//TODO
+				break;
+			case 9:
+				//9 - get out of jail free card
+				//TODO
+				break;
+			case 10:
+				//10 - street repairs, 40 per house and 115 per hotel.
+				properties = players[currentPlayer].CountProperties(); //This counts how many houses and hotels the player owns.
+				houses = properties.Item1 * 40; //This charges the player 40 per house. 
+				hotels = properties.Item2 * 115; //This charges the player 115 per hotel/
+				players[currentPlayer].Pay(houses + hotels); //The player gets fined here.
+				break;
+			case 11:
+				//11 - collect money from every player | extra - money x
+				extra = Convert.ToInt32(card.extra); //Converts extra into an int.
+
+				for (int i = 0; i < players.Count; i++) //This goes through all the players in the game.
+				{
+					if (i != currentPlayer) //This checks if the current player is not selected.
+					{
+						players[i].Pay(extra); //This charges the players the fee from extra.
+					}
+				}
+
+				payment = -extra * (players.Count - 1); //This calculates how much give to the current player.
+				players[currentPlayer].Pay(payment); //This gives the player money from every player gave.
+				break;
+		}
+		
+		buttonHandler.EnableNextTurn(); //This lets the player end the turn.
+	}
+
+	public Cards SelectCard(int group) //This function uses a queue to select a card.
+	{
+		Cards selectedCard = new Cards(); //This initialises the card that will be selected.
+		
+		switch (group) //This checks which group has been called for.
+		{
+			case 0: //Chance
+				selectedCard = chance[chancePointer]; //This selects the card in the queue by it's pointer.
+				if (chancePointer++ >= chance.Count) //This checks if the pointer will cause an overflow.
+				{
+					chancePointer = 0; //If so, it moves back to position 0.
+					break;
+				}
+				
+				chancePointer++; //If it won't overflow, it will increment the pointer.
+				break;
+			case 1: //Community Chest
+				selectedCard = communityChest[communityPointer]; //This selects the card in the queue by it's pointer.
+				if (communityPointer++ >= communityChest.Count) //This checks if the pointer will cause an overflow.
+				{
+					communityPointer = 0; //If so, it moves back to position 0.
+					break;
+				}
+
+				communityPointer++; //If it won't overflow, it will increment the pointer.
+				break;
+		}
+
+		return selectedCard; //This returns the card that was selected from the queue.
 	}
 }
 
@@ -659,6 +782,25 @@ public class Player
 		}
 
 		return false; //Says that mortgaging has not been done successfully.
+	}
+
+	public (int, int) CountProperties()
+	{
+		int houses = 0;
+		int hotels = 0;
+		foreach (Property property in ownedProperties)
+		{
+			if (!property.hotel)
+			{
+				houses += property.houses;
+			}
+			else
+			{
+				hotels++;
+			}
+		}
+		
+		return (houses, hotels);
 	}
 }
 
