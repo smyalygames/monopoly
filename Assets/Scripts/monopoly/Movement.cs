@@ -12,14 +12,25 @@ public class Movement : MonoBehaviour
 	public float speed;
 	double WPradius = 0.001;
 	private Main main;
+	private bool forward;
 
 
 	public void Move(int previousPosition, int _roll, int playerNumber)
 	{
 		position = previousPosition;
 		roll = _roll;
-		movement = true;
+		forward = true;
 		currentPlayer = playerNumber;
+		movement = true;
+	}
+
+	public void MoveBack(int previousPosition, int back, int playerNumber)
+	{
+		forward = false;
+		position = previousPosition;
+		roll = back;
+		currentPlayer = playerNumber;
+		movement = true;
 	}
 
 	void Awake()
@@ -30,8 +41,32 @@ public class Movement : MonoBehaviour
 	void Update()
 	{
 		if (!movement) return;
-		
-		if ((Vector3.Distance(waypoints[position].transform.position, players[currentPlayer].transform.position) < WPradius) && roll == 40) //This checks if the player has to go to jail
+
+		if (!forward)
+		{
+			Debug.Log("yes");
+			if ((Vector3.Distance(waypoints[position].transform.position, players[currentPlayer].transform.position) < WPradius) && position != roll)
+			{
+				position--;
+				if (position < 0)
+				{
+					position = 39;
+				}
+			} else if ((Vector3.Distance(waypoints[position].transform.position, players[currentPlayer].transform.position) < WPradius) && position == roll)
+			{
+				movement = false;
+				if (position == 30) //This checks if the player has landed on go to jail.
+				{
+					main.board.players[currentPlayer].GoToJail();
+					return;
+				}
+
+				if (!main.board.CheckProperty(roll))
+				{
+					main.board.CheckFees();
+				}
+			}
+		} else if ((Vector3.Distance(waypoints[position].transform.position, players[currentPlayer].transform.position) < WPradius) && roll == 40) //This checks if the player has to go to jail
 		{
 			position = 40;
 		} 

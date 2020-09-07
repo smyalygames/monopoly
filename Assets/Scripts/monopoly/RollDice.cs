@@ -44,12 +44,12 @@ public class RollDice : MonoBehaviour
             else
             {
                 Debug.Log($"You got out of jail with {dice1} and {dice2}!");
-                main.board.players[current].GetOutOfJail(totalRoll);
+                main.board.players[current].GetOutOfJail(dice1, dice2);
                 return;
             }
             
         }
         
-        main.board.MovePlayer(1);
+        main.board.MovePlayer(1, 1);
     }
 }

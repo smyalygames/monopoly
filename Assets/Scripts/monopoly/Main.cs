@@ -191,10 +191,12 @@ public class Board //Creating the class for the board mechanics.
 		communityPointer = 0;
 	}
 
-	public void MovePlayer(int roll) //This moves the player
+	public void MovePlayer(int roll1, int roll2) //This moves the player
 	{
-		players[currentPlayer].Move(roll); //This is telling the player to move in the local player class.
-		textHandler.UpdateRoll(roll); //This is updating the text on the screen for the roll
+		int totalRoll = roll1 + roll2;
+		
+		players[currentPlayer].Move(roll1, roll2); //This is telling the player to move in the local player class.
+		textHandler.UpdateRoll(totalRoll); //This is updating the text on the screen for the roll
 		
 		//Money UI
 		int money = players[currentPlayer].money; //Gets the money the player has
@@ -498,13 +500,15 @@ public class Board //Creating the class for the board mechanics.
 		{
 			case 0: //This is for Chance.
 				card = SelectCard(group); //This selects a card from the deck.
-				textHandler.ShowCard(group, chance[0].card_text); //This displays the card details on the UI.
+				textHandler.ShowCard(group, card.card_text); //This displays the card details on the UI.
 				break;
 			case 1: //This is for Community Chest.
 				card = SelectCard(group); //This selects a card from the deck.
-				textHandler.ShowCard(group, communityChest[0].card_text); //This displays the card details on the UI.
+				textHandler.ShowCard(group, card.card_text); //This displays the card details on the UI.
 				break;
 		}
+
+		card = chance[11];
 
 		(int, int) properties; //This is initialised to count the properties.
 		int houses; //This is initialised to calculate the total cost of each house.
@@ -516,7 +520,7 @@ public class Board //Creating the class for the board mechanics.
 		{
 			case 1:
 				//1 - move | extra - move to x (position)
-				//TODO
+				players[currentPlayer].CardMove(1, Convert.ToInt32(card.extra));
 				break;
 			case 2:
 				//2 - bank gives money | extra - give x money (money)
@@ -532,6 +536,7 @@ public class Board //Creating the class for the board mechanics.
 			case 4:
 				//4 - advance to the nearest station - requires calculation pay the owner 2x the rent
 				//TODO
+				players[currentPlayer].CardMove(4, Convert.ToInt32(card.extra));
 				break;
 			case 5:
 				//5 - advance to the nearest utility - make player roll dice, then pay owner 10x entitled pay.
@@ -559,6 +564,7 @@ public class Board //Creating the class for the board mechanics.
 			case 8:
 				//8 - go back 3 steps.
 				//TODO
+				players[currentPlayer].CardMove(8, 3);
 				break;
 			case 9:
 				//9 - get out of jail free card
@@ -649,13 +655,13 @@ public class Player
 		textHandler = GameObject.FindObjectOfType<TextHandler>(); //Finds the text handler script
 	}
 
-	public void Move(int roll) //This moves the player a certain length (what they got from rolling the dice).
+	public void Move(int roll1, int roll2) //This moves the player a certain length (what they got from rolling the dice).
 	{
 
-		diceRoll = roll;
+		diceRoll = roll1 + roll2;
 		int previousPosition = position; //This saves the previous position the player was at
 		
-		position += roll; //Add the position with what was rolled.
+		position += diceRoll; //Add the position with what was rolled.
 		
 		if (position >= 40) //If the player has reached or passed go then...
 		{
@@ -668,6 +674,28 @@ public class Player
 		//return position; //Returns where the player needs to move to on the board
 	}
 
+	private void MoveToPosition(int position)
+	{
+		int previousPosition = this.position;
+		this.position = position;
+		
+		movement.Move(previousPosition, this.position, playerNumber);
+	}
+
+	private void MoveBack(int roll)
+	{
+		int previousPosition = position; //This saves the previous position the player was at
+		
+		position -= roll; //Subtracts the position with what was rolled.
+		
+		if (position < 0) //If the player has reached or passed go then...
+		{
+			position += 40; //As the player has gone round the board once, it removes the fact that it has gone around the board once.
+		}
+		
+		movement.MoveBack(previousPosition, position, playerNumber);
+	}
+
 	public void GoToJail() //If the player needs to go to jail. TODO
 	{
 		int previousPosition = position;
@@ -677,11 +705,11 @@ public class Player
 		movement.Move(previousPosition,position, playerNumber); //Moves the player to jail.
 	}
 
-	public void GetOutOfJail(int roll) //If the player is going out of jail. TODO
+	public void GetOutOfJail(int roll1, int roll2) //If the player is going out of jail. TODO
 	{
 		position = 10; //Moves the player out of jail.
 		inJail = false; //Disables the inJail functions for the player.
-		Move(roll); //Then moves the player.
+		Move(roll1, roll2); //Then moves the player.
 	}
 
 	public void BuyProperty(Property property) //This function allows the player to own a property.
@@ -801,6 +829,22 @@ public class Player
 		}
 		
 		return (houses, hotels);
+	}
+
+	public void CardMove(int function, int position)
+	{
+		switch (function)
+		{
+			case 1:
+				MoveToPosition(position);
+				break;
+			case 4:
+				
+				break;
+			case 8:
+				MoveBack(position);
+				break;
+		}
 	}
 }
 
