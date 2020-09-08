@@ -14,6 +14,7 @@ public class MainMenu : MonoBehaviour
 	private string existingCards;
 
 	void Start() {
+		Debug.Log("Username: " + UserManager.username);
 		if (!PropertiesHandler.CheckPropertyExists()) //Checks if the properties file doesn't exist.
 		{
 			StartCoroutine(GetProperties()); //Downloads the properties json.
@@ -73,7 +74,7 @@ public class MainMenu : MonoBehaviour
 	
 	IEnumerator GetCards()
 	{
-		UnityWebRequest www = UnityWebRequest.Get(Domain.subDomain("includes/get-cards.php"));
+		UnityWebRequest www = UnityWebRequest.Get(Domain.subDomain("includes/get-cards.inc.php"));
 		yield return www.SendWebRequest();
 
 		if (www.isNetworkError || www.isHttpError)
