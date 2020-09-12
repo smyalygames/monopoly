@@ -11,10 +11,14 @@ public class LoginUIHandler : MonoBehaviour
     public GameObject loginUI;
     public Button register;
     public Button forgotPassword;
-    
+
     //Register page
     public GameObject registerUI;
     public Button backButtonRegister;
+    
+    //Forgot Password page
+    public GameObject forgotPasswordUI;
+    public Button backButtonForgotPassword;
 
     void GoToRegister()
     {
@@ -22,9 +26,16 @@ public class LoginUIHandler : MonoBehaviour
         registerUI.SetActive(true);
     }
 
+    void GoToForgotPassword()
+    {
+        loginUI.SetActive(false);
+        forgotPasswordUI.SetActive(true);
+    }
+
     void GoBack()
     {
         registerUI.SetActive(false);
+        forgotPasswordUI.SetActive(false);
         loginUI.SetActive(true);
     }
 
@@ -32,6 +43,8 @@ public class LoginUIHandler : MonoBehaviour
     void Start()
     {
         register.onClick.AddListener(GoToRegister);
+        forgotPassword.onClick.AddListener(GoToForgotPassword);
         backButtonRegister.onClick.AddListener(GoBack);
+        backButtonForgotPassword.onClick.AddListener(GoBack);
     }
 }
