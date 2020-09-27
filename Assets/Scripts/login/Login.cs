@@ -9,6 +9,7 @@ using Newtonsoft.Json;
 
 class LoginInformation
 {
+    public int id;
     public string user;
     public bool success;
     public string errors;
@@ -24,12 +25,13 @@ public class Login : MonoBehaviour
     private bool CheckIsEmpty() //This checks if the strings are empty.
     {
         var strings = new List<string> {username.text, password.text}; //This puts all of the text boxes into an array.
-        string check = "​"; //This is used for the check, the ZWSP is TMP's way of identifying nothing as null.
+        string check = ""; //​This is used for the check, the ZWSP is TMP's way of identifying nothing as null.
         if (strings.Contains(check)) //If any of the inputs are null.
         {
+            //Debug.Log("yes");
             return true;
         }
-        
+        //Debug.Log("false");
         return false;
     }
 
@@ -84,16 +86,15 @@ public class Login : MonoBehaviour
         {
             string status = www.downloadHandler.text; //This downloads the data from the server.
             LoginInformation information = JsonConvert.DeserializeObject<LoginInformation>(status); //This deserializes the JSON string to a class.
-            
+            Debug.Log(status);
 
             if (information.success) //If the user has successfully logged in.
             {
+                UserManager.userID = information.id;
                 UserManager.username = information.user; //This sets the logged in username.
                 UnityEngine.SceneManagement.SceneManager.LoadScene(1); //Loads the menu scene.
             }
-
-            InteractableForm(true); // This enables the form again.
         }
-
+        InteractableForm(true); // This enables the form again.
     }
 }
