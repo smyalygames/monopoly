@@ -28,3 +28,9 @@ CREATE TABLE pwdreset (
     pwd_token LONGTEXT NOT NULL, #Where the hashed token is stored
     pwd_expires TEXT NOT NULL #When the token expires
 );
+
+CREATE TABLE money_spent(
+    user_id int(11) PRIMARY KEY NOT NULL,
+    user_spent int(11) NOT NULL,
+    FOREIGN KEY (user_id) REFERENCES users(user_id)
+);

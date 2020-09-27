@@ -14,6 +14,7 @@ public class MainMenu : MonoBehaviour
 	private string existingCards;
 
 	void Start() {
+		Debug.Log("User ID: " + UserManager.userID);
 		Debug.Log("Username: " + UserManager.username);
 		if (!PropertiesHandler.CheckPropertyExists()) //Checks if the properties file doesn't exist.
 		{
