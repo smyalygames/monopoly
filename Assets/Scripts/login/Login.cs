@@ -21,6 +21,8 @@ public class Login : MonoBehaviour
     public TMP_InputField username; //This is for the username text input.
     public TMP_InputField password; //This is for the password text input.
     public Button login; //This is the button used to log in.
+    public GameObject errors;
+    public TextMeshProUGUI errorsText;
     
     private bool CheckIsEmpty() //This checks if the strings are empty.
     {
@@ -85,8 +87,17 @@ public class Login : MonoBehaviour
         else
         {
             string status = www.downloadHandler.text; //This downloads the data from the server.
-            LoginInformation information = JsonConvert.DeserializeObject<LoginInformation>(status); //This deserializes the JSON string to a class.
             Debug.Log(status);
+            var settings = new JsonSerializerSettings
+            {
+                NullValueHandling = NullValueHandling.Ignore
+            };
+            LoginInformation information = JsonConvert.DeserializeObject<LoginInformation>(status, settings); //This deserializes the JSON string to a class.
+            if (information.errors != null)
+            {
+                errors.SetActive(true);
+                errorsText.text = information.errors;
+            }
 
             if (information.success) //If the user has successfully logged in.
             {

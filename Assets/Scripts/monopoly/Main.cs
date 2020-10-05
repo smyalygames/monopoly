@@ -1,8 +1,10 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using Newtonsoft.Json;
 using UnityEditor;
+using UnityEngine.Networking;
 
 
 public class Property
@@ -778,6 +780,31 @@ public class Player
 	public void Pay(float fee) //This function makes the user pay.
 	{
 		money -= Convert.ToInt32(fee); //This deducts the money from the user's balance.
+		if (fee > 0)
+		{
+			StartCoroutine(UpdateTable);
+		}
+	}
+
+	IEnumerable UpdateTable()
+	{
+		List<IMultipartFormSection> formData = new List<IMultipartFormSection>();
+		//POST Data
+		formData.Add(new MultipartFormDataSection("id", UserManager.userID.ToString())); //For the username.
+		formData.Add(new MultipartFormDataSection("money", "200")); //For the email.
+
+		UnityWebRequest www = UnityWebRequest.Post(Domain.subDomain("includes/updatespent.inc.php"), formData); //This initiates the post request.
+        
+		yield return www.SendWebRequest(); //This sends the post request.
+
+		if (www.isNetworkError || www.isHttpError) //This checks for an error with the server.
+		{
+			Debug.Log(www.error); //This prints the error.
+		}
+		else
+		{
+			Debug.Log(www.downloadHandler.text); //This sends the error code or if it worked on the server side.
+		}
 	}
 	
 	public bool Mortgage(int currentProperty) //This is used for mortgaging a property.
