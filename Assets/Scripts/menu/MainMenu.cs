@@ -1,9 +1,6 @@
-﻿using Newtonsoft.Json;
-using System.Collections;
-using System.Collections.Generic;
+﻿using System.Collections;
 using UnityEngine;
 using UnityEngine.Networking;
-using TMPro;
 using UnityEngine.UI;
 
 public class MainMenu : MonoBehaviour
@@ -54,7 +51,7 @@ public class MainMenu : MonoBehaviour
 		Debug.Log("QUIT!");
 		Application.Quit();
 	}
-	
+
 	IEnumerator GetProperties()
 	{
 		UnityWebRequest www = UnityWebRequest.Get(Domain.subDomain("includes/get-properties.inc.php"));
