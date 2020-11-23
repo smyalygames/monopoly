@@ -12,6 +12,14 @@ CREATE TABLE properties (
 	property_hotel int(4) #How much it costs with a hotel
 );
 
+CREATE TABLE cards (
+	card_id int(11) AUTO_INCREMENT PRIMARY KEY NOT NULL,
+	card_group int(1) NOT NULL,
+	card_text TEXT,
+	card_function int(11) NOT NULL,
+	extra int(11)
+);
+
 CREATE TABLE users (
 	user_id int(11) AUTO_INCREMENT PRIMARY KEY NOT NULL, #This is a uniquie ID for the user
 	user_uid TINYTEXT NOT NULL, #This is the username for the user
@@ -20,15 +28,14 @@ CREATE TABLE users (
 );
 
 CREATE TABLE password (
-	pwd_id int(11) PRIMARY KEY AUTO_INCREMENT NOT NULL, #This is a unique identifier
-	user_id int(11) NOT NULL, #The email used to change the password for
+	user_id int(11) PRIMARY KEY NOT NULL, #The unique identifier and email used to change the password
 	pwd_selector TEXT NOT NULL, #Where the selector is stored in plaintext
 	pwd_token LONGTEXT NOT NULL, #Where the hashed token is stored
-	pwd_expires TEXT NOT NULL #When the token expires
+	pwd_expires INT NOT NULL, #When the token expires
 	FOREIGN KEY (user_id) REFERENCES users(user_id) #This links the user_id to the users table
 );
 
-CREATE TABLE plays(
+CREATE TABLE plays (
 	user_id int(11) PRIMARY KEY NOT NULL, #This is the unique player
 	user_plays int(11) NOT NULL, #This is how many times the player has played the game
 	FOREIGN KEY (user_id) REFERENCES users(user_id) #This links the user_id to the users table

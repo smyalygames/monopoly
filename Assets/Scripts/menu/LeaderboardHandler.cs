@@ -31,11 +31,15 @@ public class LeaderboardHandler : MonoBehaviour
 
     private void ParseLeaderboardInformation()
     {
-        Debug.Log("running");
         string parsedString = "";
         
         for (int i = 0; i < players.Count; i++)
         {
+            if (players[i].user_plays == 1) //This removes the plural in how many times the player has played the game.
+            {
+                parsedString += $"{i+1}. {players[i].user_username} played {players[i].user_plays} time\n";
+                break;
+            }
             parsedString += $"{i+1}. {players[i].user_username} played {players[i].user_plays} times\n";
         }
 
