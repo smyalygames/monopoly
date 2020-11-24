@@ -4,10 +4,12 @@ using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.Networking;
 using UnityEngine.UI;
+using TMPro;
 
 public class LevelLoader : MonoBehaviour
 {
-
+	
+	public TMP_InputField playersInput; //This is for how many players the user has selected.
     public GameObject loadingScreen; //Gets the loading screen
     public Slider slider; //Gets the slider
     
