@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using UnityEngine;
 using Newtonsoft.Json;
-using UnityEditor;
 
 
 public class Property
@@ -779,7 +778,7 @@ public class Player
 	{
 		money -= Convert.ToInt32(fee); //This deducts the money from the user's balance.
 	}
-	
+
 	public bool Mortgage(int currentProperty) //This is used for mortgaging a property.
 	{
 		if (currentProperty == 50) //Checks if there was an error - 50 is an error code.
