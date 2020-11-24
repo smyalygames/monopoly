@@ -427,6 +427,7 @@ public class Board //Creating the class for the board mechanics.
 		}
 		
 		players[location.Item1].Pay(Convert.ToInt32(property.property_cost)); //This then makes the player pay for the house that they bought.
+		textHandler.UpdateMoney(players[location.Item1].money); //Updates the money on the UI.
 	}
 
 	public void SellHouseOnProperty(string propertyName) //This function links the UI button and this class to sell properties.
@@ -449,6 +450,7 @@ public class Board //Creating the class for the board mechanics.
 		}
 		
 		players[location.Item1].Pay(Convert.ToInt32(property.property_cost)/-2); //This then gives back the money to the player for half the house/hotel's cost.
+		textHandler.UpdateMoney(players[location.Item1].money); //Updates the money on the UI.
 	}
 
 	private bool BuyHouse() //This function is used to buy houses locally.
@@ -789,6 +791,7 @@ public class Player
 		if (ownedProperties[currentProperty].mortgageProperty()) //Mortgages the property and if done successfully..
 		{
 			Pay(ownedProperties[currentProperty].property_value / -2); //Gives the user 50% of what the property is worth. (/-2 makes it positive in the Pay function)
+			textHandler.UpdateMoney(money); //Updates the money on the UI.
 			return true; //Says that mortgaging has been done successfully.
 		}
 
@@ -805,6 +808,7 @@ public class Player
 		if (ownedProperties[currentProperty].unmortgageProperty()) //Unmortgages the property and if done successfully..
 		{
 			Pay((ownedProperties[currentProperty].property_value / 2) * 1.1f); //Makes the user pay what they got in mortgage plus a 10% interest
+			textHandler.UpdateMoney(money); //Updates the money on the UI.
 			return true; //Says that mortgaging has been done successfully.
 		}
 
@@ -856,12 +860,27 @@ public class Main : MonoBehaviour
 	//Player variables
 	public List<Player> players = new List<Player>(); //Creates a list for all the players playing in the game.
 
+	public GameObject playerParentGameObject; //This is where the parent for the player GameObjects goes.
+	public List<GameObject> playersGameObjects; //This is the list of player GameObjects
+	public GameObject playerTemplate; //This is the template for each new player created.
+
 	private void Awake()
 	{
 		//Adds the players to the game
-		players.Add(new Player("smyalygames", 0, GameObject.Find("/Players/Player1")));
-		players.Add(new Player("coomer", 1, GameObject.Find("/Players/Player2")));
-		Debug.Log(players[0].name); //This is just checking if the player has been assigned.
+
+		for (int i = 0; i < GameSettings.players; i++)
+		{
+			//Duplicates the player template
+			//Moves the new player into a parent for players
+			//Names the game object player and a unique number
+			Instantiate(playerTemplate, playerTemplate.transform.position, Quaternion.identity, playerParentGameObject.transform).name = $"Player{i}";
+			playersGameObjects.Add(GameObject.Find($"/Players/Player{i}")); //Adds to a list of GameObjects by searching for the GameObject.
+			players.Add(new Player($"Player {i}", i, playersGameObjects[i])); //Creates a unique player class for that specific GameObject
+		}
+		
+		Destroy(playerTemplate); //Deletes the player template GameObject.
+
+		Debug.Log(players[1].name); //This is just checking if the player has been assigned.
 		existingProperties = JsonConvert.DeserializeObject<List<Property>>(FileHandler.LoadProperties()); //This loads via JSON all the properties from a file which was originally downloaded from a server.
 		existingCards = JsonConvert.DeserializeObject<List<Cards>>(FileHandler.LoadCards()); //This loads via JSON all the cards from a file which was originally downloaded from a server.
 		board = new Board(players, existingProperties, existingCards); //Creates the board class.

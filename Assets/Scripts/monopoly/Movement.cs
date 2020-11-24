@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using System.Collections.Generic;
+using UnityEngine;
 
 public class Movement : MonoBehaviour
 {
@@ -6,7 +7,7 @@ public class Movement : MonoBehaviour
 	public bool movement = false;
 	private int position = 0;
 	public GameObject[] waypoints;
-	public GameObject[] players;
+	public List<GameObject> players;
 	public int currentPlayer;
 	float rotSpeed;
 	public float speed;
@@ -36,6 +37,7 @@ public class Movement : MonoBehaviour
 	void Awake()
 	{
 		main = FindObjectOfType<Main>();
+		players = main.playersGameObjects;
 	}
 
 	void Update()

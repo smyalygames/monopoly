@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
@@ -10,13 +11,21 @@ public class LevelLoader : MonoBehaviour
 {
 	
 	public TMP_InputField playersInput; //This is for how many players the user has selected.
+	public Button play; //This is for the play button.
     public GameObject loadingScreen; //Gets the loading screen
     public Slider slider; //Gets the slider
-    
-    public void LoadLevel (string sceneName)
+
+    void Start()
+    {
+	    play.onClick.AddListener(LoadLevel);
+    }
+
+    public void LoadLevel()
 	{
 		StartCoroutine(UpdateTable()); //Starts the LoadAsynchronously function
-		StartCoroutine(LoadAsynchronously(sceneName)); //Starts the LoadAsynchronously function
+		GameSettings.players = Convert.ToInt32(playersInput.text); //This sets the amount of players that has been set to play in the game.
+		Debug.Log(GameSettings.players);
+		StartCoroutine(LoadAsynchronously("monopoly")); //Starts the LoadAsynchronously function
 	}
 
     IEnumerator UpdateTable()
