@@ -362,6 +362,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   PlayButton: {fileID: 710092055}
+  MainMenuUI: {fileID: 409713701}
+  PlayUI: {fileID: 820348871}
 --- !u!1 &514864490
 GameObject:
   m_ObjectHideFlags: 0
