@@ -47,9 +47,6 @@ public class RollDice : MonoBehaviour
                 main.board.players[current].GetOutOfJail(dice1, dice2);
                 return;
             }
-            
         }
-        
-        main.board.MovePlayer(dice1, dice2);
     }
 }
