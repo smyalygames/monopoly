@@ -7,10 +7,13 @@ public class MainMenu : MonoBehaviour
 {
 
 	public Button PlayButton; //Imports the play button
+	public GameObject MainMenuUI;
+	public GameObject PlayUI;
 	private string existingProperties; //The variable for the properties
 	private string existingCards;
 
 	void Start() {
+		PlayButton.onClick.AddListener(OpenPlayMenu);
 		Debug.Log("User ID: " + UserManager.userID);
 		Debug.Log("Username: " + UserManager.username);
 		if (!PropertiesHandler.CheckPropertyExists()) //Checks if the properties file doesn't exist.
@@ -44,6 +47,12 @@ public class MainMenu : MonoBehaviour
 			PlayButton.interactable = true; //Enables the play button
 			enabled = false; //Stops the update loop
 		}
+	}
+
+	public void OpenPlayMenu()
+	{
+		MainMenuUI.SetActive(false);
+		PlayUI.SetActive(true);
 	}
 
 	public void QuitGame()
