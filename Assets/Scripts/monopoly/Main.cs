@@ -633,6 +633,7 @@ public class Board //Creating the class for the board mechanics.
 public class Player
 {
 	public string name; //This is the username of the player
+	private bool isAI; //This defines if the player is an AI.
 	private int playerNumber; //This is the player number in the queue
 	public int money; //Initializes the variable for money.
 	public int position; //Positions vary from 0-39 (40 squares on the board) (Go is 0)
@@ -643,9 +644,10 @@ public class Player
 	private Movement movement;
 	private TextHandler textHandler;
 
-	public Player(string playerName, int playerNumber, GameObject player)
+	public Player(string playerName, bool isAI, int playerNumber, GameObject player)
 	{
 		name = playerName; //This initialises the username of the player
+		this.isAI = isAI;
 		position = 0; //This sets to the default position - GO
 		inJail = false; //This initialises that the player isn't in jail
 		this.playerNumber = playerNumber; //This is the position in the queue that the player is in
@@ -875,7 +877,7 @@ public class Main : MonoBehaviour
 			//Names the game object player and a unique number
 			Instantiate(playerTemplate, playerTemplate.transform.position, Quaternion.identity, playerParentGameObject.transform).name = $"Player{i}";
 			playersGameObjects.Add(GameObject.Find($"/Players/Player{i}")); //Adds to a list of GameObjects by searching for the GameObject.
-			players.Add(new Player($"Player {i}", i, playersGameObjects[i])); //Creates a unique player class for that specific GameObject
+			players.Add(new Player($"Player {i}", false, i, playersGameObjects[i])); //Creates a unique player class for that specific GameObject
 		}
 		
 		Destroy(playerTemplate); //Deletes the player template GameObject.
