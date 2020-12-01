@@ -22,13 +22,13 @@ public class LevelLoader : MonoBehaviour
 
     public void LoadLevel()
 	{
-		StartCoroutine(UpdateTable()); //Starts the LoadAsynchronously function
+		StartCoroutine(UpdatePlays()); //Starts the LoadAsynchronously function
 		GameSettings.players = Convert.ToInt32(playersInput.text); //This sets the amount of players that has been set to play in the game.
 		Debug.Log(GameSettings.players);
 		StartCoroutine(LoadAsynchronously("monopoly")); //Starts the LoadAsynchronously function
 	}
 
-    IEnumerator UpdateTable()
+    IEnumerator UpdatePlays()
     {
 	    List<IMultipartFormSection> formData = new List<IMultipartFormSection>();
 	    //POST Data
