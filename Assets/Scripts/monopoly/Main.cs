@@ -509,7 +509,7 @@ public class Board //Creating the class for the board mechanics.
 				break;
 		}
 
-		card = chance[11];
+		card = chance[10];
 
 		(int, int) properties; //This is initialised to count the properties.
 		int houses; //This is initialised to calculate the total cost of each house.
@@ -537,7 +537,43 @@ public class Board //Creating the class for the board mechanics.
 			case 4:
 				//4 - advance to the nearest station - requires calculation pay the owner 2x the rent
 				//TODO
-				players[currentPlayer].CardMove(4, Convert.ToInt32(card.extra));
+				
+				//Finds the player's current position.
+
+				int playerPosition = players[currentPlayer].position;
+				
+				/* Station Positions:
+				 * 
+				 * Kings Cross - 5
+				 * Marylebone Station - 15
+				 * Fenchurch St. Station - 25
+				 * Liverpool St. Station - 35
+				 */
+
+				int station;
+
+				if (playerPosition < 5) //If it is before Kings Cross.
+				{
+					station = 5; //Go to Kings Cross.
+				} 
+				else if (playerPosition < 15) //If it is before Marylebone.
+				{
+					station = 15; //Go to Marylebone.
+				}
+				else if (playerPosition < 25) //If it is before Fenchurch St.
+				{
+					station = 25; //Go to Fenchurch St.
+				}
+				else if (playerPosition < 35) //If it is before Liverpool St.
+				{
+					station = 35; //Go to Liverpool St.
+				}
+				else //If it is past Liverpool St.
+				{
+					station = 5; //Go to Kings Cross.
+				}
+
+				players[currentPlayer].CardMove(4, station);
 				break;
 			case 5:
 				//5 - advance to the nearest utility - make player roll dice, then pay owner 10x entitled pay.
@@ -564,12 +600,11 @@ public class Board //Creating the class for the board mechanics.
 				break;
 			case 8:
 				//8 - go back 3 steps.
-				//TODO
 				players[currentPlayer].CardMove(8, 3);
 				break;
 			case 9:
 				//9 - get out of jail free card
-				//TODO
+				players[currentPlayer].getOutOfJailCards += 1;
 				break;
 			case 10:
 				//10 - street repairs, 40 per house and 115 per hotel.
@@ -594,7 +629,7 @@ public class Board //Creating the class for the board mechanics.
 				players[currentPlayer].Pay(payment); //This gives the player money from every player gave.
 				break;
 		}
-		
+		textHandler.UpdateMoney(players[currentPlayer].money); //Updates the money on the UI.
 		buttonHandler.EnableNextTurn(); //This lets the player end the turn.
 	}
 
@@ -633,11 +668,12 @@ public class Board //Creating the class for the board mechanics.
 public class Player
 {
 	public string name; //This is the username of the player
-	private bool isAI; //This defines if the player is an AI.
+	private bool isAI; //This defines if the player is an AI. false = not an AI. true = is an AI.
 	private int playerNumber; //This is the player number in the queue
 	public int money; //Initializes the variable for money.
 	public int position; //Positions vary from 0-39 (40 squares on the board) (Go is 0)
 	public bool inJail; //This enables specific in jail functions
+	public int getOutOfJailCards; //This counts the amount of get out of jail cards the user has.
 	public int diceRoll;
 	public List<Property> ownedProperties; //This is the list of properties that the player owns.
 	public GameObject player;
@@ -650,6 +686,7 @@ public class Player
 		this.isAI = isAI;
 		position = 0; //This sets to the default position - GO
 		inJail = false; //This initialises that the player isn't in jail
+		getOutOfJailCards = 0; //This initialises the player to have 0 get out of jail free cards.
 		this.playerNumber = playerNumber; //This is the position in the queue that the player is in
 		money = 1500; //Set the default starting money.
 		this.player = player; //This links the object that the player is linked to in the game
@@ -670,6 +707,7 @@ public class Player
 		{
 			position -= 40; //As the player has gone round the board once, it removes the fact that it has gone around the board once.
 			money += 200; //Collect money as they pass go.
+			textHandler.UpdateMoney(money); //Updates the money on the UI.
 		}
 
 		movement.Move(previousPosition, position, playerNumber); //This moves the player.
@@ -679,6 +717,7 @@ public class Player
 
 	private void MoveToPosition(int position)
 	{
+		Debug.Log("Moving!");
 		int previousPosition = this.position;
 		this.position = position;
 		
@@ -844,7 +883,7 @@ public class Player
 				MoveToPosition(position);
 				break;
 			case 4:
-				
+				MoveToPosition(position);
 				break;
 			case 8:
 				MoveBack(position);
