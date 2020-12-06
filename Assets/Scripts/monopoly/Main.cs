@@ -357,6 +357,9 @@ public class Board //Creating the class for the board mechanics.
 			case 1: //Buy Property
 				BuyProperty();
 				break;
+			case 99:
+				NextPlayer();
+				break;
 		}
 	}
 
@@ -403,6 +406,7 @@ public class Board //Creating the class for the board mechanics.
 		}
 		else
 		{
+			AINextTask();
 			players[currentPlayer].AI.buyProperty = false;
 		}
 		return false; //Returns false if the property is not buybale.
@@ -453,6 +457,10 @@ public class Board //Creating the class for the board mechanics.
 				{
 					buttonHandler.DisableBuying(); //Removes the buy button.
 					buttonHandler.EnableNextTurn();
+				}
+				else
+				{
+					AINextTask();
 				}
 				return; //Stops the function
 			}

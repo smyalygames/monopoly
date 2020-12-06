@@ -1,5 +1,6 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using UnityEngine;
 
 public class AI
 {
@@ -32,6 +33,7 @@ public class AI
     /* TASK DESCRIPTIONS:
      * 0 - Move
      * 1 - Buy
+     * 99 - End Turn
      */
      
     public AI(int money)
@@ -52,16 +54,23 @@ public class AI
             //The AI will decide to move.
             RollDice(); //The AI will roll the dice.
             currentTask = 0; //It will set the current task to 0 to represent movement.
+            startedRound = true;
         }
         else if (buyProperty)
         {
             currentTask = 1; //This will buy a property.
             buyProperty = false;
         }
+        else
+        {
+            Debug.Log("I NEED TO FINISH");
+            currentTask = 99;
+            startedRound = false;
+        }
         return currentTask;
     }
 
-    public void RollDice()
+    private void RollDice()
     {
         dice1 = random.Next(1, 7);
         dice2 = random.Next(1, 7);
