@@ -46,7 +46,6 @@ public class Movement : MonoBehaviour
 
 		if (!forward)
 		{
-			Debug.Log("yes");
 			if ((Vector3.Distance(waypoints[position].transform.position, players[currentPlayer].transform.position) < WPradius) && position != roll)
 			{
 				position--;

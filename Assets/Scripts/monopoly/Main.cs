@@ -138,24 +138,33 @@ public class Property
 
 public class Board //Creating the class for the board mechanics.
 {
+	//Property Variables
 	public int houses; //Initialising houses
 	public int hotels; //Initialising hotels
 	public int totalProperties; //Defining how many properties can exist.
-	private TextHandler textHandler;
-	private ButtonHandler buttonHandler;
-	public List<Player> players;
-	public int currentPlayer = 0;
 	public List<Property> existingProperties;
 	public List<Property> avaliableProperties = new List<Property>(); //Has a list of all the available properties.
+	
+	//Player Variables
+	public int currentPlayer = 0;
+	public List<Player> players;
+
+	//Card Variables
 	public List<Cards> chance = new List<Cards>();
 	private int chancePointer;
 	public List<Cards> communityChest = new List<Cards>();
 	private int communityPointer;
+	private bool onCard; //This becomes true when the player was on the card previously which increases finance.
+	
+	//Handlers
+	private TextHandler textHandler;
+	private ButtonHandler buttonHandler;
 
 	public Board(List<Player> players, List<Property> properties, List<Cards> existingCards)
 	{
 		this.players = players; //Imports all of the players playing
 		Debug.Log(this.players.Count); //Prints how many players are playing
+		onCard = false; //This is the default (the player can never start on a card)
 		textHandler = GameObject.FindObjectOfType<TextHandler>(); //Finds the text handler script
 		buttonHandler = GameObject.FindObjectOfType<ButtonHandler>(); //Finds the button handler script
 		existingProperties = properties; //This sets all of the properties that exist
@@ -255,6 +264,11 @@ public class Board //Creating the class for the board mechanics.
 							break;
 					}
 
+					if (onCard) //If the player was previously on a card...
+					{
+						payment *= 2; //Make the player pay 2x the owed fee.
+					}
+
 					break;
 				
 				case "utilities": //If it is a utility.
@@ -266,6 +280,11 @@ public class Board //Creating the class for the board mechanics.
 						case 2: //If it is 2, then the dice roll gets multiplied by 10 and that's how much they pay.
 							payment = players[currentPlayer].diceRoll * 10;
 							break;
+					}
+
+					if (onCard)
+					{
+						payment = players[currentPlayer].diceRoll * 10;
 					}
 
 					break;
@@ -320,7 +339,15 @@ public class Board //Creating the class for the board mechanics.
 			currentPlayer++; //Increments the queue to the next player
 		}
 		textHandler.UpdateMoney(players[currentPlayer].money); //Changes the amount of money the new player has.
-		buttonHandler.EnableRollDice(); //Re-enables the user to roll the dice.
+
+		if (players[currentPlayer].isAI)
+		{
+			players[currentPlayer].AI.NextTask();
+		}
+		else
+		{
+			buttonHandler.EnableRollDice(); //Re-enables the user to roll the dice.
+		}
 	}
 
 	public bool CheckProperty(int position) //This checks if the property can be bought by the user.
@@ -516,7 +543,8 @@ public class Board //Creating the class for the board mechanics.
 		int hotels; //This is initialised to calculate the total cost of each hotel.
 		int extra; //This is used for converting extra to an int.
 		int payment; //This is used to calculate the total payment required.
-		
+
+		int playerPosition;
 		switch (card.card_function) //This performs the function of the card.
 		{
 			case 1:
@@ -536,11 +564,10 @@ public class Board //Creating the class for the board mechanics.
 				break;
 			case 4:
 				//4 - advance to the nearest station - requires calculation pay the owner 2x the rent
-				//TODO
-				
+
 				//Finds the player's current position.
 
-				int playerPosition = players[currentPlayer].position;
+				playerPosition = players[currentPlayer].position;
 				
 				/* Station Positions:
 				 * 
@@ -550,7 +577,7 @@ public class Board //Creating the class for the board mechanics.
 				 * Liverpool St. Station - 35
 				 */
 
-				int station;
+				int station; //This is the station that the player will travel to.
 
 				if (playerPosition < 5) //If it is before Kings Cross.
 				{
@@ -573,11 +600,41 @@ public class Board //Creating the class for the board mechanics.
 					station = 5; //Go to Kings Cross.
 				}
 
-				players[currentPlayer].CardMove(4, station);
+				onCard = true; //This then sets the future financing options for the player.
+
+				players[currentPlayer].CardMove(4, station); //This moves the player to the closest station.
 				break;
 			case 5:
 				//5 - advance to the nearest utility - make player roll dice, then pay owner 10x entitled pay.
 				//TODO
+				//Finds the player's current position.
+				
+				playerPosition = players[currentPlayer].position;
+				
+				/* Utility Positions:
+				 * 
+				 * Electric Company - 12
+				 * Marylebone Station - 28
+				 */
+
+				int utility; //This is the utility the player will have to travel to.
+
+				if (playerPosition < 12) //If it is before Electric Company.
+				{
+					utility = 12; //Go to Electric Company.
+				}
+				else if (playerPosition < 28) //If it is before Water Works.
+				{
+					utility = 28; //Go to Water Works.
+				}
+				else //If it is past Water Works.
+				{
+					utility = 12; //Go to Electric Company.
+				}
+
+				onCard = true; //This then sets the future financing options for the player.
+				
+				players[currentPlayer].CardMove(4, utility); //This moves the player to the closest station.
 				break;
 			case 6:
 				//6 - pay each player a sum of money | extra - money x
@@ -667,32 +724,63 @@ public class Board //Creating the class for the board mechanics.
 
 public class Player
 {
-	public string name; //This is the username of the player
-	private bool isAI; //This defines if the player is an AI. false = not an AI. true = is an AI.
-	private int playerNumber; //This is the player number in the queue
+	//Player Info
+	public string name; //This is the username of the player.
+	private int playerNumber; //This is the player number in the queue.
+	
+	//Player Variables
 	public int money; //Initializes the variable for money.
 	public int position; //Positions vary from 0-39 (40 squares on the board) (Go is 0)
 	public bool inJail; //This enables specific in jail functions
 	public int getOutOfJailCards; //This counts the amount of get out of jail cards the user has.
 	public int diceRoll;
 	public List<Property> ownedProperties; //This is the list of properties that the player owns.
+	
+	//AI
+	public bool isAI; //This defines if the player is an AI. false = not an AI. true = is an AI.
+	public AI AI; //This initialises the AI class.
+	
+	//Other
 	public GameObject player;
 	private Movement movement;
 	private TextHandler textHandler;
 
 	public Player(string playerName, bool isAI, int playerNumber, GameObject player)
 	{
+		//Player Info
 		name = playerName; //This initialises the username of the player
+		this.playerNumber = playerNumber; //This is the position in the queue that the player is in
+		
+		//AI
 		this.isAI = isAI;
+		if (this.isAI)
+		{
+			AI = new AI();
+		}
+
+		//Player Variables
 		position = 0; //This sets to the default position - GO
 		inJail = false; //This initialises that the player isn't in jail
 		getOutOfJailCards = 0; //This initialises the player to have 0 get out of jail free cards.
-		this.playerNumber = playerNumber; //This is the position in the queue that the player is in
 		money = 1500; //Set the default starting money.
-		this.player = player; //This links the object that the player is linked to in the game
 		ownedProperties = new List<Property>();
+		
+		//Other
+		this.player = player; //This links the object that the player is linked to in the game
 		movement = GameObject.FindObjectOfType<Movement>(); //This finds the movement script in the game
 		textHandler = GameObject.FindObjectOfType<TextHandler>(); //Finds the text handler script
+	}
+
+	public void AINextTask()
+	{
+		switch (AI.NextTask())
+		{
+			case 0:
+				int dice1 = AI.dice1;
+				int dice2 = AI.dice2;
+				Move(dice1, dice2);
+				break;
+		}
 	}
 
 	public void Move(int roll1, int roll2) //This moves the player a certain length (what they got from rolling the dice).
@@ -916,7 +1004,7 @@ public class Main : MonoBehaviour
 			//Names the game object player and a unique number
 			Instantiate(playerTemplate, playerTemplate.transform.position, Quaternion.identity, playerParentGameObject.transform).name = $"Player{i}";
 			playersGameObjects.Add(GameObject.Find($"/Players/Player{i}")); //Adds to a list of GameObjects by searching for the GameObject.
-			players.Add(new Player($"Player {i}", false, i, playersGameObjects[i])); //Creates a unique player class for that specific GameObject
+			players.Add(new Player($"Player {i}", true, i, playersGameObjects[i])); //Creates a unique player class for that specific GameObject
 		}
 		
 		Destroy(playerTemplate); //Deletes the player template GameObject.

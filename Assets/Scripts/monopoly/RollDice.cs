@@ -50,6 +50,6 @@ public class RollDice : MonoBehaviour
             
         }
         
-        main.board.MovePlayer(1, 1);
+        main.board.MovePlayer(dice1, dice2);
     }
 }
