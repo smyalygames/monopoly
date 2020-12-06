@@ -18,17 +18,47 @@ public class AI
     public int dice2; //Second dice.
     private int roll; //Total of both dice.
     
-    public AI()
+    //AI Info
+    public int money; //This tracks how much money the AI can deal with.
+    public int position; //This is the current position of the AI on the board.
+    private bool startedRound; //This checks when the player has started the round.
+    
+    //AI Abilities
+    public bool buyProperty; //This tells the AI if it is allowed to buy it's own property.
+    
+    //Tasks
+    private int currentTask; //This is the current task that the player is performing
+    
+    /* TASK DESCRIPTIONS:
+     * 0 - Move
+     * 1 - Buy
+     */
+     
+    public AI(int money)
     {
+        //AI Info
+        this.money = money;
+        position = 0;
+        startedRound = false;
         
+        //AI Abilities
+        buyProperty = false;
     }
 
     public int NextTask()
     {
-        /* TASK DESCRIPTIONS:
-         * 0 - Move
-         */
-        return 0;
+        if (!startedRound) //This checks if the player has not started the round.
+        {
+            //The AI will decide to move.
+            RollDice(); //The AI will roll the dice.
+            currentTask = 0; //It will set the current task to 0 to represent movement.
+        }
+        else if (buyProperty)
+        {
+            currentTask = 1; //This will buy a property.
+            buyProperty = false;
+        }
+        return currentTask;
     }
 
     public void RollDice()

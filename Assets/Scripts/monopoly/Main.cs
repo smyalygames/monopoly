@@ -342,7 +342,7 @@ public class Board //Creating the class for the board mechanics.
 
 		if (players[currentPlayer].isAI)
 		{
-			players[currentPlayer].AI.NextTask();
+			AINextTask();
 		}
 		else
 		{
@@ -350,9 +350,21 @@ public class Board //Creating the class for the board mechanics.
 		}
 	}
 
+	private void AINextTask()
+	{
+		switch (players[currentPlayer].AINextTask())
+		{
+			case 1: //Buy Property
+				BuyProperty();
+				break;
+		}
+	}
+
 	public bool CheckProperty(int position) //This checks if the property can be bought by the user.
 	{
 
+		bool AI = players[currentPlayer].isAI;
+		
 		Property property = existingProperties[position]; //Gets the property the player is currently at.
 
 		if (property.property_group == "chance")
@@ -371,12 +383,28 @@ public class Board //Creating the class for the board mechanics.
 		{
 			if (property.property_name == avaliableProperties[i].property_name) //Checks if the name exists in the available properties that can be purchased.
 			{
-				buttonHandler.EnableBuying(); //If it can, it will return true and break from the function
+				if (!AI)
+				{
+					buttonHandler.EnableBuying(); //If it can, it will return true and break from the function
+				}
+				else
+				{
+					players[currentPlayer].AI.buyProperty = true; //This allows the AI to buy the property.
+					AINextTask();
+				}
 				return true; //Returns true if the property is buyable.
 			}
 		}
-		buttonHandler.DisableBuying(); //If the name is not found, the property has not been found.
-		buttonHandler.EnableNextTurn(); //Allows the user to roll the dice if the property cannot be bought
+
+		if (!AI)
+		{
+			buttonHandler.DisableBuying(); //If the name is not found, the property has not been found.
+			buttonHandler.EnableNextTurn(); //Allows the user to roll the dice if the property cannot be bought
+		}
+		else
+		{
+			players[currentPlayer].AI.buyProperty = false;
+		}
 		return false; //Returns false if the property is not buybale.
 	}
 
@@ -401,12 +429,16 @@ public class Board //Creating the class for the board mechanics.
 		int position = players[currentPlayer].position; //This is the current position of the player for the property.
 		Property property = existingProperties[position]; //This gets the property that the player is buying
 		int money = players[currentPlayer].money; //Gets the current amount of money the player has
-
+		bool AI = players[currentPlayer].isAI;
+		
 		if (money - property.property_value < 0) //Checks if the player doesn't have enough money to pay for it
 		{
 			Debug.Log("The player doesn't have enough money!");
-			buttonHandler.DisableBuying(); //Removes the buy button.
-			buttonHandler.EnableRollDice(); //Re-enables the user to roll the dice.
+			if (!AI)
+			{
+				buttonHandler.DisableBuying(); //Removes the buy button.
+				buttonHandler.EnableRollDice(); //Re-enables the user to roll the dice.
+			}
 			return; //Stops the function
 		}
 
@@ -417,13 +449,16 @@ public class Board //Creating the class for the board mechanics.
 				avaliableProperties.RemoveAt(i); //Removes the property from the list.
 				players[currentPlayer].BuyProperty(property); //This buys the property in the player class
 				textHandler.UpdateMoney(players[currentPlayer].money); //This updates the amount of money the player has.
-				buttonHandler.DisableBuying(); //Removes the buy button.
-				buttonHandler.EnableNextTurn();
+				if (!AI)
+				{
+					buttonHandler.DisableBuying(); //Removes the buy button.
+					buttonHandler.EnableNextTurn();
+				}
 				return; //Stops the function
 			}
 		}
 		
-		Debug.Log("The property cannot be bought!"); //Prints that theres an error
+		Debug.LogError("The property cannot be bought!"); //Prints that theres an error
 		
 	}
 
@@ -535,8 +570,6 @@ public class Board //Creating the class for the board mechanics.
 				textHandler.ShowCard(group, card.card_text); //This displays the card details on the UI.
 				break;
 		}
-
-		card = chance[10];
 
 		(int, int) properties; //This is initialised to count the properties.
 		int houses; //This is initialised to calculate the total cost of each house.
@@ -750,13 +783,6 @@ public class Player
 		//Player Info
 		name = playerName; //This initialises the username of the player
 		this.playerNumber = playerNumber; //This is the position in the queue that the player is in
-		
-		//AI
-		this.isAI = isAI;
-		if (this.isAI)
-		{
-			AI = new AI();
-		}
 
 		//Player Variables
 		position = 0; //This sets to the default position - GO
@@ -769,23 +795,39 @@ public class Player
 		this.player = player; //This links the object that the player is linked to in the game
 		movement = GameObject.FindObjectOfType<Movement>(); //This finds the movement script in the game
 		textHandler = GameObject.FindObjectOfType<TextHandler>(); //Finds the text handler script
+		
+		//AI
+		this.isAI = isAI;
+		if (this.isAI)
+		{
+			AI = new AI(money);
+		}
+		
 	}
 
-	public void AINextTask()
+	public int AINextTask()
 	{
-		switch (AI.NextTask())
+		AI.money = money; //This tells the AI how much money it has.
+
+		int nextTask = AI.NextTask();
+		
+		switch (nextTask)
 		{
-			case 0:
+			case 0: //Move
 				int dice1 = AI.dice1;
 				int dice2 = AI.dice2;
 				Move(dice1, dice2);
 				break;
+			case 1: //Buy Property
+				break;
 		}
+
+		return nextTask;
 	}
 
 	public void Move(int roll1, int roll2) //This moves the player a certain length (what they got from rolling the dice).
 	{
-
+		Debug.Log("moved");
 		diceRoll = roll1 + roll2;
 		int previousPosition = position; //This saves the previous position the player was at
 		
