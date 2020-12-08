@@ -1054,7 +1054,7 @@ public class Main : MonoBehaviour
 			//Names the game object player and a unique number
 			Instantiate(playerTemplate, playerTemplate.transform.position, Quaternion.identity, playerParentGameObject.transform).name = $"Player{i}";
 			playersGameObjects.Add(GameObject.Find($"/Players/Player{i}")); //Adds to a list of GameObjects by searching for the GameObject.
-			players.Add(new Player($"Player {i}", true, i, playersGameObjects[i])); //Creates a unique player class for that specific GameObject
+			players.Add(new Player($"Player {i}", false, i, playersGameObjects[i])); //Creates a unique player class for that specific GameObject
 		}
 		
 		Destroy(playerTemplate); //Deletes the player template GameObject.
