@@ -46,7 +46,9 @@ public class Inventory : MonoBehaviour
     public void OpenInventory() //This function renders the inventory panel.
     {
         Player currentPlayer = main.board.players[main.board.currentPlayer]; //Initialises the current player to make the code look neater.
-        for (int i = 0; i < properties.Length; i++) //Checks through all of the buttons.
+
+        Debug.Log(currentPlayer.ownedProperties.Count);
+            for (int i = 0; i < properties.Length; i++) //Checks through all of the buttons.
         {
             if (currentPlayer.ownedProperties.Count == 0)
             {
