@@ -1,4 +1,4 @@
 ﻿public static class GameSettings
 {
-    public static int players = 2;
+    public static int players = 5;
 }

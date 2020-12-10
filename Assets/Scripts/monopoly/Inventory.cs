@@ -48,13 +48,9 @@ public class Inventory : MonoBehaviour
         Player currentPlayer = main.board.players[main.board.currentPlayer]; //Initialises the current player to make the code look neater.
 
         Debug.Log(currentPlayer.ownedProperties.Count);
-            for (int i = 0; i < properties.Length; i++) //Checks through all of the buttons.
+        for (int i = 0; i < properties.Length; i++) //Checks through all of the buttons.
         {
-            if (currentPlayer.ownedProperties.Count == 0)
-            {
-                properties[i].interactable = false;
-                break;
-            }
+            properties[i].interactable = false;
             for (int j = 0; j < currentPlayer.ownedProperties.Count; j++) //Checks through all of the owned properties.
             {
                 if (currentPlayer.ownedProperties[j].property_name == properties[i].name) //Checks if the names of the property is the same as the button name/
@@ -62,8 +58,6 @@ public class Inventory : MonoBehaviour
                     properties[i].interactable = true; //Makes the button for the property interactable.
                     break; //Stops the j for loop as the owned properties list is in order.
                 }
-                
-                properties[i].interactable = false;
             }
         }
     }

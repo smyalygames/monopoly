@@ -767,7 +767,7 @@ public class Player
 {
 	//Player Info
 	public string name; //This is the username of the player.
-	private int playerNumber; //This is the player number in the queue.
+	public int playerNumber; //This is the player number in the queue.
 	
 	//Player Variables
 	public int money; //Initializes the variable for money.

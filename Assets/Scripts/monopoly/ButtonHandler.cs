@@ -21,6 +21,12 @@ public class ButtonHandler : MonoBehaviour
 
     public GameObject card;
     public Button cardButton;
+    
+    //Trade
+    public GameObject TradeUI;
+    public Button tradeButton;
+    private bool tradeOpen = false;
+    private Trade trade;
 
     public void DisableRollDice()
     {
@@ -86,6 +92,35 @@ public class ButtonHandler : MonoBehaviour
     {
         card.SetActive(false);
     }
+    
+    //Trade
+
+    void OpenTrade()
+    {
+        trade.OpenTrade();
+        GameUI.SetActive(false);
+        TradeUI.SetActive(true);
+    }
+
+    void CloseTrade()
+    {
+        TradeUI.SetActive(false);
+        GameUI.SetActive(true);
+    }
+
+    void ToggleTrade()
+    {
+        if (!tradeOpen)
+        {
+            OpenTrade();
+            tradeOpen = true;
+        }
+        else
+        {
+            CloseTrade();
+            tradeOpen = false;
+        }
+    }
 
     private Main main;
 
@@ -93,6 +128,7 @@ public class ButtonHandler : MonoBehaviour
     { 
         main = FindObjectOfType<Main>();
         inventoryClass = FindObjectOfType<Inventory>();
+        trade = FindObjectOfType<Trade>();
     }
 
     void Start()
@@ -101,6 +137,7 @@ public class ButtonHandler : MonoBehaviour
         nextTurn.onClick.AddListener(NextTurn);
         inventory.onClick.AddListener(ToggleInventory);
         cardButton.onClick.AddListener(CloseCard);
+        tradeButton.onClick.AddListener(ToggleTrade);
     }
 
     void BuyPropertyClick() {
