@@ -28,6 +28,9 @@ public class Trade : MonoBehaviour
     public List<Button> player1PropertiesButtons; //This is a list for all the buttons for the properties for player 1.
     public List<Button> player2PropertiesButtons; //This is a list for all the buttons for the properties for player 2.
 
+    private List<bool> player1SelectedProperties = new List<bool>(); //This is the selected properties for player 1 to trade.
+    private List<bool> player2SelectedProperties = new List<bool>(); //This is the selected properties for player 2 to trade.
+
     //Function when opening the trade UI
     public void OpenTrade()
     {
@@ -95,13 +98,39 @@ public class Trade : MonoBehaviour
         TradeMenu.SetActive(true); //This opens the trade menu.
     }
 
+    private void SelectProperty(int button, int player)
+    {
+        //This switch statement decides between which player the button has been assigned.
+        switch (player)
+        {
+            case 1: //Player 1
+                player1SelectedProperties[button] = !player1SelectedProperties[button]; //Switch between selection.
+                break;
+            case 2: //Player 2
+                player2SelectedProperties[button] = !player2SelectedProperties[button]; //Switch between selection.
+                break;
+        }
+    }
+
     void Awake()
     {
         main = FindObjectOfType<Main>(); //This gets the data from the main file.
+        for (int i = 0; i < 28; i++)
+        {
+            player1SelectedProperties.Add(false);
+            player2SelectedProperties.Add(false);
+        }
     }
 
     void Start()
     {
         playerSelectionNext.onClick.AddListener(PlayerSelectNext); //This lets the next button work on the player selector.
+        
+        for (int i = 0; i < player1PropertiesButtons.Count; i++) //This goes through all of the buttons in the main menu.
+        {
+            int i1 = i;
+            player1PropertiesButtons[i].onClick.AddListener(() => SelectProperty(i1, 1)); //This adds a specific menu for each of the buttons.
+            player2PropertiesButtons[i].onClick.AddListener(() => SelectProperty(i1, 2)); //This adds a specific menu for each of the buttons.
+        }
     }
 }
