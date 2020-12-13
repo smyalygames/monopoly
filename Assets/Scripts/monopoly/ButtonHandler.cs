@@ -25,6 +25,7 @@ public class ButtonHandler : MonoBehaviour
     //Trade
     public GameObject TradeUI;
     public Button tradeButton;
+    public Button tradeCompletedButton;
     private bool tradeOpen = false;
     private Trade trade;
 
@@ -138,6 +139,7 @@ public class ButtonHandler : MonoBehaviour
         inventory.onClick.AddListener(ToggleInventory);
         cardButton.onClick.AddListener(CloseCard);
         tradeButton.onClick.AddListener(ToggleTrade);
+        tradeCompletedButton.onClick.AddListener(ToggleTrade);
     }
 
     void BuyPropertyClick() {

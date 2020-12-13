@@ -894,19 +894,45 @@ public class Player
 
 	public void BuyProperty(Property property) //This function allows the player to own a property.
 	{
-		int price = property.property_value;
+		int price = property.property_value; //Assigns the price of the property.
 		
-		if (money - price >= 0)
+		if (money - price >= 0) //If the player can afford the property.
 		{
 			ownedProperties.Add(property); //Adds the property to the list of the player owned properties.
-			ownedProperties = MergeMethod.MergeSort(ownedProperties);
-			money -= price;
+			ownedProperties = MergeMethod.MergeSort(ownedProperties); //Performs a merge sort on the ownedProperties list
+			money -= price; //Removes the balance from the player.
 		}
-		else
+		else //If the player cannot afford the property.
 		{
-			Debug.Log("Error: You do not have enough money to pay for the property!");
+			Debug.LogError("You do not have enough money to pay for the property!");
 		}
 		
+	}
+
+	//Trading
+	public void AddProperty(Property property)
+	{
+		ownedProperties.Add(property); //Adds the property to the list of the player owned properties.
+		ownedProperties = MergeMethod.MergeSort(ownedProperties); //Performs a merge sort on the ownedProperties list
+	}
+
+	public void RemoveProperty(Property property)
+	{
+		for (int i = 0; i < ownedProperties.Count; i++) //This goes through all the properties in the list.
+		{
+			if (ownedProperties[i] == property) //Checks if the property is the same as the item in the list.
+			{
+				ownedProperties.RemoveAt(i); //Removes the property from the list.
+				ownedProperties = MergeMethod.MergeSort(ownedProperties); //Performs a merge sort on the ownedProperties list
+				Debug.Log(ownedProperties.Count);
+				return; //Ends the for loop
+			}
+		}
+	}
+
+	public void UpdateMoneyText()
+	{
+		textHandler.UpdateMoney(money);
 	}
 	
 	public bool CheckColourSet(string colour) //Checks if the player has a whole colour set.
