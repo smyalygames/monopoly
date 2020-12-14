@@ -28,6 +28,12 @@ public class ButtonHandler : MonoBehaviour
     public Button tradeCompletedButton;
     private bool tradeOpen = false;
     private Trade trade;
+    
+    //Auction
+    public GameObject AuctionUI;
+    public Button auctionButton;
+    public Button auctionCompleteButton;
+    private Auction auction;
 
     public void DisableRollDice()
     {
@@ -122,6 +128,18 @@ public class ButtonHandler : MonoBehaviour
             tradeOpen = false;
         }
     }
+    void OpenAuction()
+    {
+        auction.OpenTrade();
+        GameUI.SetActive(false);
+        AuctionUI.SetActive(true);
+    }
+
+    void CloseAuction()
+    {
+        AuctionUI.SetActive(false);
+        GameUI.SetActive(true);
+    }
 
     private Main main;
 
@@ -130,16 +148,25 @@ public class ButtonHandler : MonoBehaviour
         main = FindObjectOfType<Main>();
         inventoryClass = FindObjectOfType<Inventory>();
         trade = FindObjectOfType<Trade>();
+        auction = FindObjectOfType<Auction>();
     }
 
     void Start()
     {
+        //Core game button function assignment
         buyButtonButton.onClick.AddListener(BuyPropertyClick);
         nextTurn.onClick.AddListener(NextTurn);
+        
+        //Inventory button function assignment
         inventory.onClick.AddListener(ToggleInventory);
         cardButton.onClick.AddListener(CloseCard);
+        
+        //Trade button function assignment
         tradeButton.onClick.AddListener(ToggleTrade);
         tradeCompletedButton.onClick.AddListener(ToggleTrade);
+        
+        //Auction button function assignment
+        auctionButton.onClick.AddListener(OpenAuction);
     }
 
     void BuyPropertyClick() {
