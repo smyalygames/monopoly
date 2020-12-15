@@ -46,9 +46,9 @@ public class Auction : MonoBehaviour
         highestBidValue = 0; //This is the starting value for the highest bid.
         
         //Assigning players to the queue
-        List<Player> auctionPlayerQueue = main.board.players; //This gets a temporary list of all of the players in the game.
-        currentAuctionPlayer = 0; //This sets the auction queue to 0.
-        int currentPlayer = main.board.currentPlayer - 1; //This gets the current player from the board.
+        auctionPlayerQueue = main.board.players; //This gets a temporary list of all of the players in the game.
+        currentAuctionPlayer = main.board.currentPlayer; //This sets the auction queue to the current player.
+        int currentPlayer = main.board.currentPlayer; //This gets the current player from the board.
 
         int playerPosition = main.board.players[currentPlayer].position; //This gets the position of the player that started the auction.
 
@@ -82,7 +82,7 @@ public class Auction : MonoBehaviour
     
     private void UpdateCurrentBidders()
     {
-        currentBidders.text = $"Current Bidder: {auctionPlayerQueue[currentAuctionPlayer]}\n" +
+        currentBidders.text = $"Current Bidder: {auctionPlayerQueue[currentAuctionPlayer].name}\n" +
                               $"Bidders Left: {auctionPlayerQueue.Count}";
     }
 
@@ -91,7 +91,7 @@ public class Auction : MonoBehaviour
     {
         
         //Incrementing to the next player
-        if (currentAuctionPlayer >= auctionPlayerQueue.Count)
+        if (currentAuctionPlayer >= auctionPlayerQueue.Count - 1)
         {
             currentAuctionPlayer = 0;
         }
@@ -187,6 +187,31 @@ public class Auction : MonoBehaviour
         NextPlayer();
     }
 
+    private void QuitAuction()
+    {
+        auctionPlayerQueue.RemoveAt(currentAuctionPlayer); //This removes the specified player.
+        
+        if (currentAuctionPlayer <= auctionPlayerQueue.Count - 1) //This moves the player back a bit for the queue
+        {
+            currentAuctionPlayer--;
+        }
+
+        if (auctionPlayerQueue.Count == 1) //This checks if there is only one player left.
+        {
+            WinAuction(); //This gives the player the property.
+            return; //Ends the function.
+        }
+        
+        NextPlayer(); //Moves on to the next player to bid.
+    }
+
+    private void WinAuction()
+    {
+        int winningPlayer = auctionPlayerQueue[0].playerNumber; //This stores the winning player's number on the board.
+        
+        
+    }
+
     void Awake()
     {
         main = FindObjectOfType<Main>(); //This gets the data from the main file.
@@ -201,5 +226,8 @@ public class Auction : MonoBehaviour
         
         //Custom bid
         customBidButton.onClick.AddListener(BidCustom); //This allows the player to bid a custom amount.
+        
+        //Quit auction
+        quitAuction.onClick.AddListener(QuitAuction);
     }
 }

@@ -4172,6 +4172,7 @@ MonoBehaviour:
   tradeButton: {fileID: 839394544}
   tradeCompletedButton: {fileID: 1476609748}
   AuctionUI: {fileID: 1651024356}
+  auctionButtonGameObject: {fileID: 597381241}
   auctionButton: {fileID: 597381243}
   auctionCompleteButton: {fileID: 321526181}
 --- !u!114 &310476700
@@ -22496,7 +22497,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: -0.3999939, y: 0.23999023}
+  m_AnchoredPosition: {x: -0.4000244, y: 0.23999023}
   m_SizeDelta: {x: 200, y: 50}
   m_Pivot: {x: 0, y: 1}
 --- !u!114 &1417539915
@@ -25762,7 +25763,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &1651024357
 RectTransform:
   m_ObjectHideFlags: 0

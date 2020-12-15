@@ -31,6 +31,7 @@ public class ButtonHandler : MonoBehaviour
     
     //Auction
     public GameObject AuctionUI;
+    public GameObject auctionButtonGameObject;
     public Button auctionButton;
     public Button auctionCompleteButton;
     private Auction auction;
@@ -47,11 +48,13 @@ public class ButtonHandler : MonoBehaviour
 
     public void DisableBuying()
     {
+        auctionButtonGameObject.SetActive(false);
         buyButton.SetActive(false);
     }
 
     public void EnableBuying()
     {
+        auctionButtonGameObject.SetActive(true);
         buyButton.SetActive(true);
     }
 
